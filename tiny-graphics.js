@@ -181,7 +181,7 @@ class Mat extends Array {
 class Mat4 extends Mat {
     constructor(x,y) {
         return Mat.of([1, 0, 0, x], [0, 1, 0, y], [0, 0, 1, 0], [0, 0, 0, 1]);
-    };
+    }
     static identity() {
         return Mat.of([1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]);
     };

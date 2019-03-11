@@ -1,11 +1,16 @@
-function Rocket(x, y, array, velocity) 
+function Rocket(x, y, velocity) 
 {
 	this.x = x;
 	this.y = y;
-	this.array = array;
 	this.velocity = velocity;
 }
 
+function Alien(x, y, boom)
+{
+	this.x = x;
+	this.y = y;
+	this.boom = boom;
+}
 class Assignment_Two_Skeleton extends Scene_Component {
 	// The scene begins by requesting the camera, shapes, and materials it will need
 	constructor(context, control_box) {
@@ -16,14 +21,25 @@ class Assignment_Two_Skeleton extends Scene_Component {
 		this.rockets = [];
 		this.shots = 0;
 		
+		
 		var arr = [];
 		var i = 0;
-		while(i < 32)
+		var alien_x = -10.5;
+		var alien_y = 0;
+		for(var i = 0; i < 4; i ++)
 		{
-			arr.push(0);
-			i ++;
+			for(var j = 0; j < 8; j ++)
+			{
+				arr.push(new Alien(alien_x, alien_y, 0));
+				alien_x += 3;
+			}
+			alien_x = -10.5;
+			alien_y += 3;
 		}
+
 		this.alien_array = arr;
+
+
 		// First, include a secondary Scene that provides movement controls:
 		//         if(!context.globals.has_controls)
 		//             context.register_scene_component(new Movement_Controls(context, control_box.parentElement.insertCell()));
@@ -98,22 +114,9 @@ class Assignment_Two_Skeleton extends Scene_Component {
 			this.paused = !this.paused;
 		}
 		);
-
-		this.key_triggered_button("Up", ["w"], ()=>{
-			if (this.ship_matrix[1][3] < -3) {
-				this.ship_matrix = this.ship_matrix.times(Mat4.translation(Vec.of(0, move, 0)));
-			}
-		}
-		);
 		this.key_triggered_button("Left", ["a"], ()=>{
 			if (this.ship_matrix[0][3] > -12) {
 				this.ship_matrix = this.ship_matrix.times(Mat4.translation(Vec.of(-move, 0, 0)));
-			}
-		}
-		);
-		this.key_triggered_button("Down", ["s"], ()=>{
-			if (this.ship_matrix[1][3] > -11) {
-				this.ship_matrix = this.ship_matrix.times(Mat4.translation(Vec.of(0, -move, 0)));
 			}
 		}
 		);
@@ -123,23 +126,19 @@ class Assignment_Two_Skeleton extends Scene_Component {
 			}
 		}
 		);
-		this.key_triggered_button("Shoot", ["f"], ()=>{
-			this.rockets.push(new Rocket(this.ship_matrix[0][3], this.ship_matrix[1][3], this.ship_matrix, .1));
+		this.key_triggered_button("Shoot", ['\ '], ()=>{
+			this.rockets.push(new Rocket(this.ship_matrix[0][3], this.ship_matrix[1][3], .1));
 			this.shots++;
 		}
 		);
 	}
-
-	
 
 	make_shoot(graphics_state, shoot_matrix)
 	{		
 		for(var i = 0; i < this.rockets.length; i ++)
 		{
 			var rocket = this.rockets[i];
-
-			rocket.y += 10  * rocket.velocity ;
-			rocket.array = rocket.array.times(Mat4.translation(Vec.of(rocket.x,rocket.y + 10 ,0)));
+			rocket.y += 5 * rocket.velocity ;
 
 			if(rocket.y >= 13 )
 			{
@@ -159,34 +158,19 @@ class Assignment_Two_Skeleton extends Scene_Component {
 
 	create_aliens(graphics_state, alien_matrix, alien_array) 
 	{
-
 		let dist = Math.ceil(30 * Math.cos(this.t)) / 10;
-		alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(dist, 0, 0)));   
-
 		let y = 0;
-		y += Math.ceil(this.t / (Math.PI)) / 2;
-		alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(0, -y, 0)));
-
-		var j, i, a = 0;
-
-		for (i = 0; i < 4; i++) 
+		y += Math.ceil(this.t / (Math.PI)) / 4;	
+		
+		for(var i = 0; i < this.alien_array.length; i ++)
 		{
-				for (j = 0; j < 8; j++) 
-				{
-						alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(3, 0, 0)));
-						var curr = alien_array[a];
-						if(alien_array[a] == 0)
-						{
-							this.shapes.ball.draw(
-									graphics_state, 
-									alien_matrix.times(Mat4.scale(Vec.of(.5, .5, .5))), 
-									this.shape_materials[1] || this.plastic);
-						}
-
-						a ++;
-				}
-				alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(-24, -3, 0)));
+			var alien = this.alien_array[i];
+			alien.y -= y;
+			alien.x += dist;
 		}
+	
+
+		
 	}
 
 	delete_alien(graphics_state, alien_matrix)
@@ -220,8 +204,21 @@ class Assignment_Two_Skeleton extends Scene_Component {
 				var mat = new Mat4(this.rockets[i].x, this.rockets[i].y);
 				this.shapes.ball.draw(
 						graphics_state,
-						mat,
+					mat.times(Mat4.scale(Vec.of(.4, .4, .4))), 
 						this.shape_materials[3] || this.plastic);
+			}
+
+
+		
+		
+			for(var i = 0; i < this.alien_array.length; i ++)
+			{
+				var mat = new Mat4(this.alien_array[i].x, this.alien_array[i].y)
+
+				this.shapes.ball.draw(
+					graphics_state,
+					mat.times(Mat4.scale(Vec.of(.5, .5, .5))), 
+					this.shape_materials[1] || this.plastic);
 			}
 
 			this.shapes.ball.draw(graphics_state, this.ship_matrix, this.shape_materials[1] || this.plastic);
