@@ -20,24 +20,7 @@ class Assignment_Two_Skeleton extends Scene_Component {
 		this.shoot_matrix = this.ship_matrix;
 		this.rockets = [];
 		this.shots = 0;
-		
-		
-		var arr = [];
-		var i = 0;
-		var alien_x = -10.5;
-		var alien_y = 0;
-		for(var i = 0; i < 4; i ++)
-		{
-			for(var j = 0; j < 8; j ++)
-			{
-				arr.push(new Alien(alien_x, alien_y, 0));
-				alien_x += 3;
-			}
-			alien_x = -10.5;
-			alien_y += 3;
-		}
-
-		this.alien_array = arr;
+		this.alien_array = [];
 
 
 		// First, include a secondary Scene that provides movement controls:
@@ -158,6 +141,22 @@ class Assignment_Two_Skeleton extends Scene_Component {
 
 	create_aliens(graphics_state, alien_matrix, alien_array) 
 	{
+		var arr = [];
+		var i = 0;
+		var alien_x = -10.5;
+		var alien_y = 0;
+		for(var i = 0; i < 4; i ++)
+		{
+			for(var j = 0; j < 8; j ++)
+			{
+				arr.push(new Alien(alien_x, alien_y, 0));
+				alien_x += 3;
+			}
+			alien_x = -10.5;
+			alien_y += 3;
+		}
+
+		this.alien_array = arr;
 		let dist = Math.ceil(30 * Math.cos(this.t)) / 10;
 		let y = 0;
 		y += Math.ceil(this.t / (Math.PI)) / 4;	
@@ -168,9 +167,6 @@ class Assignment_Two_Skeleton extends Scene_Component {
 			alien.y -= y;
 			alien.x += dist;
 		}
-	
-
-		
 	}
 
 	delete_alien(graphics_state, alien_matrix)
