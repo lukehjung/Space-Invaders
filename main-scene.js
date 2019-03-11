@@ -11,6 +11,7 @@ function Alien(x, y, boom)
 	this.y = y;
 	this.boom = boom;
 }
+
 class Assignment_Two_Skeleton extends Scene_Component {
 	// The scene begins by requesting the camera, shapes, and materials it will need
 	constructor(context, control_box) {
@@ -47,7 +48,8 @@ class Assignment_Two_Skeleton extends Scene_Component {
 			'box': new Cube(),
 			'cylinder': new Cylinder(15),
 			'cone': new Cone(20),
-			'ball': new Subdivision_Sphere(4)
+			'ball': new Subdivision_Sphere(4),
+			'prism': new TriangularPrism()
 		}
 		this.submit_shapes(context, shapes);
 		this.shape_count = Object.keys(shapes).length;
@@ -78,6 +80,12 @@ class Assignment_Two_Skeleton extends Scene_Component {
 			cone: "assets/hypnosis.jpg",
 			circle: "assets/hypnosis.jpg"
 		};
+
+		this.yellow = Color.of(1, 1, 0, 1);
+		this.white = Color.of(1, 1, 1, 0);
+		this.red = Color.of(1, 1, 0, 0);
+		this.black = Color.of(0, 0, 0, 0);
+
 		for (let t in shape_textures)
 			this.shape_materials[t] = this.texture_base.override({
 				texture: context.get_instance(shape_textures[t])
@@ -87,6 +95,137 @@ class Assignment_Two_Skeleton extends Scene_Component {
 
 		this.t = 0;
 	}
+		
+	draw_aliens2(graphics_state, alien_matrix)
+  	{
+		this.shapes.ball.draw(graphics_state, alien_matrix.times(Mat4.scale(Vec.of(.5, .5, .5))), this.shape_materials[1] || this.plastic);
+		this.shapes.prism.draw(graphics_state, 
+		  alien_matrix.times(Mat4.translation(Vec.of(0.8, 0.3, 0)))
+		  .times(Mat4.scale(Vec.of(.5, .5, .1)))
+		  .times(Mat4.rotation(Math.PI/0.9, Vec.of(0, 0, 1))),
+		  this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+		this.shapes.prism.draw(graphics_state,
+		  alien_matrix.times(Mat4.translation(Vec.of(-.9, 0.3, 0)))
+		  .times(Mat4.scale(Vec.of(.5, .5, .1)))
+		  .times(Mat4.rotation(Math.PI/0.71, Vec.of(0, 0, 1))),
+		  this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+		this.shapes.ball.draw(graphics_state,
+		  alien_matrix.times(Mat4.translation(Vec.of(-.15, 0.07, 0.3)))
+		  .times(Mat4.scale(Vec.of(.2, .2, .2))),
+		  this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+		this.shapes.ball.draw(graphics_state,
+		  alien_matrix.times(Mat4.translation(Vec.of(.2, 0.07, 0.3)))
+		  .times(Mat4.scale(Vec.of(.2, .2, .2))),
+		  this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+		this.shapes.ball.draw(graphics_state,
+		  alien_matrix.times(Mat4.translation(Vec.of(0, -0.2, 0.34)))
+		  .times(Mat4.scale(Vec.of(0.32, 0.12, 0.12))),
+		  this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+  	}
+
+  draw_aliens1(graphics_state, alien_matrix)
+  {
+		this.shapes.ball.draw(graphics_state, alien_matrix.times(Mat4.scale(Vec.of(.25, .25, .25))), this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+		this.shapes.cone.draw(graphics_state, 
+		  alien_matrix.times(Mat4.translation(Vec.of(0, -0.2, 0)))
+		  .times(Mat4.scale(Vec.of(0.11, 0.4, 0.11)))
+		  .times(Mat4.rotation(Math.PI/2, Vec.of(1, 0, 0))),
+		  this.shape_materials[1] || this.plastic);
+		this.shapes.ball.draw(graphics_state, 
+		  alien_matrix.times(Mat4.translation(Vec.of(0, 0.55, 0)))
+		  .times(Mat4.scale(Vec.of(.175, .35, .175))),
+		  this.shape_materials[1] || this.plastic);
+		this.shapes.box.draw(graphics_state,
+		  alien_matrix.times(Mat4.translation(Vec.of(.09, 0.9, 0)))
+		  .times(Mat4.scale(Vec.of(.04, .3, .04))),
+		  this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+		this.shapes.box.draw(graphics_state,
+		  alien_matrix.times(Mat4.translation(Vec.of(-.09, 0.9, 0)))
+		  .times(Mat4.scale(Vec.of(.04, .3, .04))),
+		  this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+		this.shapes.ball.draw(graphics_state,
+		  alien_matrix.times(Mat4.translation(Vec.of(.3, .45, 0)))
+		  .times(Mat4.scale(Vec.of(.3, .13, .09))),
+		  //.times(Mat4.rotation(Math.PI/4, Vec.of(1, 0, 0))),
+		  this.shape_materials[1] || this.plastic);
+		this.shapes.ball.draw(graphics_state,
+		  alien_matrix.times(Mat4.translation(Vec.of(-.3, .45, 0)))
+		  .times(Mat4.scale(Vec.of(.3, .13, .09))),
+		  //.times(Mat4.rotation(Math.PI/4, Vec.of(1, 0, 0))),
+		  this.shape_materials[1] || this.plastic);
+		this.shapes.ball.draw(graphics_state, 
+		  alien_matrix.times(Mat4.translation(Vec.of(.1, -0.15, 0.4)))
+		  .times(Mat4.scale(Vec.of(.08, .08, .08))),
+		  this.shape_materials[1] || this.plastic);
+		this.shapes.ball.draw(graphics_state, 
+		  alien_matrix.times(Mat4.translation(Vec.of(-.1, -0.15, 0.4)))
+		  .times(Mat4.scale(Vec.of(.08, .08, .08))),
+      this.shape_materials[1] || this.plastic);
+  }
+
+	draw_ship(graphics_state, ship_matrix)
+  	{
+    this.shapes.cylinder.draw(graphics_state, 
+      this.ship_matrix.times(Mat4.translation(Vec.of(0, 0, 0))) // y translate value found here
+      .times(Mat4.scale(Vec.of(.8, .9, .8)))
+      .times(Mat4.rotation(Math.PI/2, Vec.of(1, 0, 0))), 
+      this.shape_materials[1] || this.plastic);
+    this.shapes.cone.draw(graphics_state,
+      this.ship_matrix.times(Mat4.translation(Vec.of(0, .9, 0)))
+      .times(Mat4.rotation(Math.PI*(3/2), Vec.of(1, 0, 0)))
+      .times(Mat4.scale(Vec.of(.8, 1, 1))),
+      this.shape_materials[1] || this.plastic);
+    this.shapes.cylinder.draw(graphics_state, 
+      this.ship_matrix.times(Mat4.translation(Vec.of(0, .05, 0.4)))
+      .times(Mat4.scale(Vec.of(.6, .7, .6)))
+      .times(Mat4.rotation(Math.PI/2, Vec.of(1, 0, 0))), 
+      this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+    this.shapes.cone.draw(graphics_state,
+      this.ship_matrix.times(Mat4.translation(Vec.of(0, -1.3, 0)))
+      .times(Mat4.rotation(Math.PI*(3/2), Vec.of(1, 0, 0)))
+      .times(Mat4.scale(Vec.of(.35, 1, .55))),
+      this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+    this.shapes.ball.draw(graphics_state,
+      this.ship_matrix.times(Mat4.translation(Vec.of(0, .3, 1)))
+      .times(Mat4.scale(Vec.of(.3, .3, .3))),
+      this.shape_materials[1] || this.plastic);
+    this.shapes.box.draw(graphics_state,
+      this.ship_matrix.times(Mat4.translation(Vec.of(0, -0.25, 1)))
+      .times(Mat4.scale(Vec.of(.05, .38, .1))),
+      this.shape_materials[1] || this.plastic);
+    this.shapes.box.draw(graphics_state,
+      this.ship_matrix.times(Mat4.translation(Vec.of(-.2, -.2, 1)))
+      .times(Mat4.rotation(Math.PI/2.3, Vec.of(0, 0, 1)))
+      .times(Mat4.scale(Vec.of(.04, .2, .04))),
+      this.shape_materials[1] || this.plastic);
+    this.shapes.box.draw(graphics_state,
+      this.ship_matrix.times(Mat4.translation(Vec.of(.2, -.2, 1)))
+      .times(Mat4.rotation(Math.PI/(-2.3), Vec.of(0, 0, 1)))
+      .times(Mat4.scale(Vec.of(.04, .2, .04))),
+      this.shape_materials[1] || this.plastic);
+    this.shapes.ball.draw(graphics_state,
+      this.ship_matrix.times(Mat4.translation(Vec.of(0.1, .4, 1.24)))
+      .times(Mat4.scale(Vec.of(0.09, .09, .09))),
+      this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+    this.shapes.ball.draw(graphics_state,
+      this.ship_matrix.times(Mat4.translation(Vec.of(-0.1, .4, 1.24)))
+      .times(Mat4.scale(Vec.of(0.09, .09, .09))),
+      this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+    this.shapes.box.draw(graphics_state,
+      this.ship_matrix.times(Mat4.translation(Vec.of(0.08, .24, 1.3)))
+      .times(Mat4.rotation(Math.PI/0.09, Vec.of(0, 0, 1)))
+      .times(Mat4.scale(Vec.of(.13, .035, .035))),
+      this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+    this.shapes.prism.draw(graphics_state,
+      this.ship_matrix.times(Mat4.translation(Vec.of(.8, -.5, 0)))
+      .times(Mat4.scale(Vec.of(.7, .9, 0.1))),
+      this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+    this.shapes.prism.draw(graphics_state,
+      this.ship_matrix.times(Mat4.translation(Vec.of(-.8, -.5, 0)))
+      .times(Mat4.rotation(Math.PI, Vec.of(0, 1, 0)))
+      .times(Mat4.scale(Vec.of(.7, .9, 0.1))),
+      this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+  	}
 
 	// Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
 	make_control_panel() {
@@ -134,9 +273,9 @@ class Assignment_Two_Skeleton extends Scene_Component {
 	create_boundaries(graphics_state) 
 	{
 		let m = Mat4.identity();
-		this.shapes.square.draw(graphics_state, m.times(Mat4.translation(Vec.of(-15.5, 0, 0))).times(Mat4.scale(Vec.of(1, 50, 1))), this.shape_materials[1] || this.plastic);
+		this.shapes.square.draw(graphics_state, m.times(Mat4.translation(Vec.of(-16, 0, 0))).times(Mat4.scale(Vec.of(1, 50, 1))), this.shape_materials[1] || this.plastic);
 
-		this.shapes.square.draw(graphics_state, m.times(Mat4.translation(Vec.of(15.5, 0, 0))).times(Mat4.scale(Vec.of(1, 50, 1))), this.shape_materials[1] || this.plastic);
+		this.shapes.square.draw(graphics_state, m.times(Mat4.translation(Vec.of(16, 0, 0))).times(Mat4.scale(Vec.of(1, 50, 1))), this.shape_materials[1] || this.plastic);
 	}
 
 	create_aliens(graphics_state, alien_matrix, alien_array) 
@@ -203,21 +342,22 @@ class Assignment_Two_Skeleton extends Scene_Component {
 					mat.times(Mat4.scale(Vec.of(.4, .4, .4))), 
 						this.shape_materials[3] || this.plastic);
 			}
-
-
 		
 		
 			for(var i = 0; i < this.alien_array.length; i ++)
 			{
 				var mat = new Mat4(this.alien_array[i].x, this.alien_array[i].y)
 
-				this.shapes.ball.draw(
-					graphics_state,
-					mat.times(Mat4.scale(Vec.of(.5, .5, .5))), 
-					this.shape_materials[1] || this.plastic);
+				if( i % 2 ==0)
+				{
+					this.draw_aliens1(graphics_state,mat);
+				}
+				else
+					this.draw_aliens2(graphics_state,mat);
+
 			}
 
-			this.shapes.ball.draw(graphics_state, this.ship_matrix, this.shape_materials[1] || this.plastic);
+			this.draw_ship(graphics_state, this.ship_matrix);
 	}
 }
 

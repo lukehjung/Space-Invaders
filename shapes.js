@@ -1,3 +1,37 @@
+window.TriangularPrism = window.classes.TriangularPrism = class TriangularPrism extends Shape {
+    constructor() { 
+        // Name the values we'll define per each vertex.
+        super("positions", "normals", "texture_coords");
+        
+        this.positions.push(...Vec.cast(
+            [0, 0,  1], [ 0, 1,  1], [1, 0,  1],
+            [0, 0, -1], [ 0, 1, -1], [1, 0, -1],
+            [0, 0,  1], [ 0, 0, -1], [1, 0, -1], [1, 0, 1],
+            [0, 0,  1], [ 0, 0, -1], [0, 1, -1], [0, 1, 1],
+            [1, 0,  1], [ 1, 0, -1], [0, 1, -1], [0, 1, 1]));
+
+        // Supply vectors that point away from eace face of the cube.  They should match up with the points in the above list
+        // Normal vectors are needed so the graphics engine can know if the shape is pointed at light or not, and color it accordingly.
+        const r2 = Math.sqrt(2);
+        this.normals.push(...Vec.cast(
+            [ 0,  0,  1], [ 0,  0,  1], [ 0,  0,  1],
+            [ 0,  0, -1], [ 0,  0, -1], [ 0,  0, -1],
+            [ 0, -1,  0], [ 0, -1,  0], [ 0, -1,  0], [ 0, -1,  0],
+            [-1,  0,  0], [-1,  0,  0], [-1,  0,  0], [-1,  0,  0],
+            [r2, r2,  0], [r2, r2,  0], [r2, r2,  0], [r2, r2,  0]));
+
+        // Those two lists, positions and normals, fully describe the "vertices".  What's the "i"th vertex?  Simply the combined
+        // data you get if you look up index "i" of both lists above -- a position and a normal vector, together.  Now let's
+        // tell it how to connect vertex entries into triangles.  Every three indices in this list makes one triangle:
+        this.indices.push(
+            0, 1, 2,
+            3, 4, 5,
+            6, 7, 8, 6, 8, 9,
+            10, 11, 12, 10, 13, 12,
+            14, 15, 16, 14, 17, 16);
+    }
+}
+
 window.Square = window.classes.Square = class Square extends Shape {
     constructor() {
         super("positions", "normals", "texture_coords");
@@ -29,6 +63,7 @@ window.Circle = window.classes.Circle = class Circle extends Shape {
         }
     }
 }
+
 
 window.Cube = window.classes.Cube = class Cube extends Shape {
     constructor() {
