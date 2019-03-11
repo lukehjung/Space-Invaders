@@ -5,7 +5,6 @@ class Assignment_Two_Skeleton extends Scene_Component {
     super(context, control_box);
     this.ship_matrix = Mat4.identity().times(Mat4.translation(Vec.of(0, -10, 0)));
     this.shoot_matrix = this.ship_matrix;
-    this.alien_matrix = Mat4.identity().times(Mat4.translation(Vec.of(-12, 10, 0)));
 
     // First, include a secondary Scene that provides movement controls:
     //         if(!context.globals.has_controls)
@@ -118,37 +117,34 @@ class Assignment_Two_Skeleton extends Scene_Component {
 
   create_boundaries(graphics_state) {
     let m = Mat4.identity();
-    this.shapes.square.draw(graphics_state, m.times(Mat4.translation(Vec.of(-15, 0, 0))).times(Mat4.scale(Vec.of(1, 50, 1))), this.shape_materials[1] || this.plastic);
+    this.shapes.square.draw(graphics_state, m.times(Mat4.translation(Vec.of(-15.5, 0, 0))).times(Mat4.scale(Vec.of(1, 50, 1))), this.shape_materials[1] || this.plastic);
 
-    this.shapes.square.draw(graphics_state, m.times(Mat4.translation(Vec.of(15, 0, 0))).times(Mat4.scale(Vec.of(1, 50, 1))), this.shape_materials[1] || this.plastic);
+    this.shapes.square.draw(graphics_state, m.times(Mat4.translation(Vec.of(15.5, 0, 0))).times(Mat4.scale(Vec.of(1, 50, 1))), this.shape_materials[1] || this.plastic);
   }
 
   create_aliens(graphics_state, alien_matrix) {
 
-    let ticker = this.t % 60;
-    let dist = Math.ceil(3 * Math.sin(this.t));
-//     if(ticker < 30)
-//     {
-//     }
+    let dist = Math.ceil(30 * Math.cos(this.t)) / 10;
+    alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(dist, 0, 0)));   
+    
+    let y = 0;
+    y += Math.ceil(this.t / (Math.PI))/2;
+    console.log(y);
+    alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(0, -y, 0)));
 
-//     else
-//     {
-//       alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(dist, 0, 0)));   
-//     } 
-    console.log(dist);
-        alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(dist, 0, 0)));   
-
-    var j;
-    var i;
+    var j; var i;
 
     for (i = 0; i < 4; i++) {
-      for (j = 0; j < 11; j++) {
-        alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(2, 0, 0)));
+      for (j = 0; j < 8; j++) {
+        alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(3, 0, 0)));
 
-        this.shapes.ball.draw(graphics_state, alien_matrix.times(Mat4.scale(Vec.of(.5, .5, .5))), this.shape_materials[1] || this.plastic);
+        this.shapes.ball.draw(
+          graphics_state, 
+          alien_matrix.times(Mat4.scale(Vec.of(.5, .5, .5))), 
+          this.shape_materials[1] || this.plastic);
 
       }
-      alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(-22, -2, 0)));
+      alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(-24, -3, 0)));
     }
   }
 
@@ -165,7 +161,8 @@ class Assignment_Two_Skeleton extends Scene_Component {
       this.shoot_matrix = this.ship_matrix;
       this.shoot_matrix = this.shoot_matrix.times(Mat4.translation(Vec.of(0, 25 * this.t % 25, 0)));
     }
-
+    
+    this.alien_matrix = Mat4.identity().times(Mat4.translation(Vec.of(-13.5, 10, 0)));
     let alien_matrix = this.alien_matrix;
     
     // Draw some demo textured shapes
