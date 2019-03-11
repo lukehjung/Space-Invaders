@@ -1,3 +1,10 @@
+function Rocket(x, y, velocity) 
+{
+  this.x = x;
+  this.y = y;
+  this.velocity = velocity;
+}
+
 class Assignment_Two_Skeleton extends Scene_Component {
   // The scene begins by requesting the camera, shapes, and materials it will need
   constructor(context, control_box) {
@@ -5,7 +12,17 @@ class Assignment_Two_Skeleton extends Scene_Component {
     super(context, control_box);
     this.ship_matrix = Mat4.identity().times(Mat4.translation(Vec.of(0, -10, 0)));
     this.shoot_matrix = this.ship_matrix;
-
+    this.rockets = [];
+    this.shots = 0;
+    
+    var arr = [];
+    var i = 0;
+    while(i < 32)
+    {
+      arr.push(0);
+      i ++;
+    }
+    this.alien_array = arr;
     // First, include a secondary Scene that provides movement controls:
     //         if(!context.globals.has_controls)
     //             context.register_scene_component(new Movement_Controls(context, control_box.parentElement.insertCell()));
@@ -84,7 +101,6 @@ class Assignment_Two_Skeleton extends Scene_Component {
     this.key_triggered_button("Up", ["w"], ()=>{
       if (this.ship_matrix[1][3] < -3) {
         this.ship_matrix = this.ship_matrix.times(Mat4.translation(Vec.of(0, move, 0)));
-        console.log(this.ship_matrix);
       }
     }
     );
@@ -107,45 +123,83 @@ class Assignment_Two_Skeleton extends Scene_Component {
     }
     );
     this.key_triggered_button("Shoot", ["f"], ()=>{
-      this.shoot = !this.shoot;
+      this.rockets.push(new Rocket(this.ship_matrix[0][3], this.ship_matrix[1][3], .1));
+      this.shots++;
     }
     );
   }
 
-  make_shoot(graphics_state) {//        while(this.shoot_matrix[1][3] < 25)
-  }
+  
 
-  create_boundaries(graphics_state) {
+    make_shoot(graphics_state, shoot_matrix)
+    {
+        //this.bullets.push();
+        //let bullet = this.ship_matrix.copy();//.identity();//.times(Mat4.translation(Vec.of(x, -8, 0))).times(Mat4.scale(Vec.of(0.2,0.2,0.2)));
+        //let start = this.t;
+        //bullet = bullet.Mat4.translation(Vec.of(-10,pos,0))
+        //bullet = bullet.times(Mat4.translation(Vec.of(0,this.t,0)))
+        //console.log(pos);
+
+        for(var i = 0; i < this.rockets.length; i ++)
+        {
+          var rocket = this.rockets[0];
+          rocket.y += graphics_state.animation_delta_time * rocket.velocity;
+          shoot_matrix = shoot_matrix.times(Mat4.translation(Vec.of(rocket.x,rocket.y + 10 ,0)));
+          if(rocket.y < 10 )
+          {
+            this.shapes.ball.draw(
+                graphics_state,
+                shoot_matrix,
+                this.shape_materials[3] || this.plastic);
+
+          }
+        }
+        
+    }
+
+  create_boundaries(graphics_state) 
+  {
     let m = Mat4.identity();
     this.shapes.square.draw(graphics_state, m.times(Mat4.translation(Vec.of(-15.5, 0, 0))).times(Mat4.scale(Vec.of(1, 50, 1))), this.shape_materials[1] || this.plastic);
 
     this.shapes.square.draw(graphics_state, m.times(Mat4.translation(Vec.of(15.5, 0, 0))).times(Mat4.scale(Vec.of(1, 50, 1))), this.shape_materials[1] || this.plastic);
   }
 
-  create_aliens(graphics_state, alien_matrix) {
+  create_aliens(graphics_state, alien_matrix, alien_array) 
+  {
 
-    let dist = Math.ceil(30 * Math.cos(this.t)) / 10;
-    alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(dist, 0, 0)));   
-    
-    let y = 0;
-    y += Math.ceil(this.t / (Math.PI))/2;
-    console.log(y);
-    alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(0, -y, 0)));
+      let dist = Math.ceil(30 * Math.cos(this.t)) / 10;
+      alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(dist, 0, 0)));   
 
-    var j; var i;
+      let y = 0;
+      y += Math.ceil(this.t / (Math.PI)) / 2;
+      alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(0, -y, 0)));
 
-    for (i = 0; i < 4; i++) {
-      for (j = 0; j < 8; j++) {
-        alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(3, 0, 0)));
+      var j, i, a = 0;
 
-        this.shapes.ball.draw(
-          graphics_state, 
-          alien_matrix.times(Mat4.scale(Vec.of(.5, .5, .5))), 
-          this.shape_materials[1] || this.plastic);
+      for (i = 0; i < 4; i++) 
+      {
+          for (j = 0; j < 8; j++) 
+          {
+              alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(3, 0, 0)));
+              var curr = alien_array[a];
+              if(alien_array[a] == 0)
+              {
+                this.shapes.ball.draw(
+                    graphics_state, 
+                    alien_matrix.times(Mat4.scale(Vec.of(.5, .5, .5))), 
+                    this.shape_materials[1] || this.plastic);
+              }
 
+              a ++;
+          }
+          alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(-24, -3, 0)));
       }
-      alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(-24, -3, 0)));
-    }
+  }
+
+  delete_alien(graphics_state, alien_matrix)
+  {
+      
   }
 
   display(graphics_state) {
@@ -156,21 +210,23 @@ class Assignment_Two_Skeleton extends Scene_Component {
     if (!this.paused)
       this.t += graphics_state.animation_delta_time / 1000;
     const t = this.t;
+    
+    const shoot_matrix = this.shoot_matrix;
 
-    if (this.shoot) {
-      this.shoot_matrix = this.ship_matrix;
-      this.shoot_matrix = this.shoot_matrix.times(Mat4.translation(Vec.of(0, 25 * this.t % 25, 0)));
-    }
+
+    this.make_shoot(graphics_state, shoot_matrix);    
+    //    this.shots --;
+
     
     this.alien_matrix = Mat4.identity().times(Mat4.translation(Vec.of(-13.5, 10, 0)));
     let alien_matrix = this.alien_matrix;
+    let alien_array = this.alien_array;
     
     // Draw some demo textured shapes
     this.create_boundaries(graphics_state);
-    this.create_aliens(graphics_state, alien_matrix)
+    this.create_aliens(graphics_state, alien_matrix, alien_array)
 
     this.shapes.ball.draw(graphics_state, this.ship_matrix, this.shape_materials[1] || this.plastic);
-    this.shapes.ball.draw(graphics_state, this.shoot_matrix.times(Mat4.scale(Vec.of(.5, .5, .5))), this.shape_materials[1] || this.plastic);
   }
 }
 
