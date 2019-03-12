@@ -473,34 +473,52 @@ class Space_Invaders extends Scene_Component {
 	{
 		if(!this.paused)
 		{
+			var down = false;
 			for(var i = 0; i < this.alien_array.length; i ++)
 			{
 				var alien = this.alien_array[i];
-				if(this.t % 200 == 0)
+				if(alien.x >= 14)
 				{
-					alien.movedown = true;
+					alien.x -= .1;
+					down = true;
 				}
-				if(alien.movedown)
+				if(alien.x <= -14)
 				{
-					alien.y -= 1;
-					alien.movedown = false;
-					if(alien.moveright == true)
-					{
-						alien.moveright = false;
-					}
-					else
-					{
-						alien.moveright = true;
-					}
+					alien.x += .1;
+					down = true;
 				}
+
+
+
+				if(down)
+				{
+					for(var i = 0; i < this.alien_array.length; i ++)
+					{
+						var a = this.alien_array[i];
+						a.y -= 1;
+						
+						if(a.moveright == true)
+						{
+							a.moveright = false;
+						}
+						else
+						{
+							a.moveright = true;
+						}
+					}
+					down = false;
+				}
+				
 				else if(alien.moveright)
 				{
 					alien.x += 0.025;
 				}
-				else
+				else if(!alien.moveright)
 				{
 					alien.x -= 0.025;
 				}
+
+				
 
 				// shoot lasers randomly
 				var shootlaser = Math.floor(Math.random() * 2500) + 1;
@@ -567,7 +585,7 @@ class Space_Invaders extends Scene_Component {
 			}
 			
 			if(hit) {
-            	for (let j = 0; j < 25; j++) 
+            	for (let j = 0; j < 5; j++) 
 				{
 					let randvec_x = Math.random() - 0.5;
 					let randvec_y = Math.random() - 0.5;
@@ -674,9 +692,9 @@ class Space_Invaders extends Scene_Component {
 		let alien_array = this.alien_array;
 			
 		// Draw some demo textured shapes
-		let m = Mat4.identity().times(Mat4.translation(Vec.of(-16,-4,0)));
+		let m = Mat4.identity().times(Mat4.translation(Vec.of(-16,-15,0)));
 // 		this.create_boundaries(graphics_state);
-		for( var i = 0; i < 50; i += 3)
+		for( var i = 0; i < 80; i += 3)
 		{
 			this.create_asteroids(graphics_state, m);
 			let b = m.times(Mat4.translation(Vec.of(32,0,0)));
@@ -786,6 +804,7 @@ class Space_Invaders extends Scene_Component {
 				this.lasers.splice(i--, 1)
 			}
 		}
+		console.log(this.t)
 	}
 }
 
