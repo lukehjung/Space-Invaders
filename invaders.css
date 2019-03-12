@@ -3,7 +3,8 @@
     position: relative;
 }
 #overlay {
-    background: rgba(76, 175, 80, 0.3);
+    font-size: 20pt;
+    background: rgba(76, 175, 80, 0);
     color: #39ff14;
     position: absolute;
     left: 10px;

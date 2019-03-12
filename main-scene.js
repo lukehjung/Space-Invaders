@@ -52,6 +52,14 @@ class Space_Invaders extends Scene_Component {
 		this.animation_t = 0;
 		this.sign_Matrix = Mat4.identity().times(Mat4.scale([10, 10, 10])).times(Mat4.translation([0, 0, 100]));
 
+		this.score = 0;
+		this.lives = 3;
+		this.scoreElement = document.getElementById("score");
+		this.livesElement = document.getElementById("lives");
+		this.scoreNode = document.createTextNode("");
+		this.livesNode = document.createTextNode("");
+		this.scoreElement.appendChild(this.scoreNode);
+		this.livesElement.appendChild(this.livesNode);
 
 		this.materials = {
 			start_screen: context.get_instance(Fake_Bump_Map).material(Color.of(0, 0, 0, 1), {
@@ -61,8 +69,6 @@ class Space_Invaders extends Scene_Component {
                 texture: context.get_instance("assets/start.jpg", false)
             })
 		}
-
-		this.lives = 3;
 		
 		this.particles = []
 		this.hit_once;
@@ -189,7 +195,7 @@ class Space_Invaders extends Scene_Component {
 			.times(Mat4.scale(Vec.of(.13, .03, .03))),
 			this.shape_materials[1] || this.plastic.override({color: this.yellow}));
 
-		const deg = 1.5 * Math.sin(this.t);
+		const deg = 1.5 * Math.sin(this.t/5);
 		alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(0, .4, 0)))
             .times(Mat4.scale(Vec.of(.06, .06, .06)))
             .times(Mat4.rotation(Math.PI, Vec.of(1, .9, 0.7))),
@@ -246,11 +252,11 @@ class Space_Invaders extends Scene_Component {
 		  //.times(Mat4.rotation(Math.PI/4, Vec.of(1, 0, 0))),
 		  this.shape_materials[1] || this.plastic);
 		this.shapes.ball.draw(graphics_state, 
-		  alien_matrix.times(Mat4.translation(Vec.of(.1, -0.15, 0.4)))
+		  alien_matrix.times(Mat4.translation(Vec.of(.1, -0.15, 0.2)))
 		  .times(Mat4.scale(Vec.of(.08, .08, .08))),
 		  this.shape_materials[1] || this.plastic);
 		this.shapes.ball.draw(graphics_state, 
-		  alien_matrix.times(Mat4.translation(Vec.of(-.1, -0.15, 0.4)))
+		  alien_matrix.times(Mat4.translation(Vec.of(-.1, -0.15, 0.2)))
 		  .times(Mat4.scale(Vec.of(.08, .08, .08))),
       this.shape_materials[1] || this.plastic);
   }
@@ -593,6 +599,8 @@ class Space_Invaders extends Scene_Component {
 
 					this.particles.push(new Particle(alien.x, alien.y, 0, randvec_x, randvec_y, randvec_z));
 				}
+				
+				this.score += 100;
 
             	this.alien_array.splice(i--, 1);
 
@@ -685,6 +693,9 @@ class Space_Invaders extends Scene_Component {
 			}
 		}
 
+		this.scoreNode.nodeValue = this.score.toFixed(0);  // no decimal place
+    	this.livesNode.nodeValue = this.lives.toFixed(0);
+
 		const t = this.t;
 			
 		this.make_shoot(graphics_state);
@@ -707,7 +718,7 @@ class Space_Invaders extends Scene_Component {
 		// draw rockets
 		for(var i = 0; i < this.rockets.length; i ++)
 		{
-			var mat = new Mat4(this.rockets[i].x, this.rockets[i].y, 0);
+			var mat = new Mat4(this.rockets[i].x, this.rockets[i].y, 0).times(Mat4.translation(Vec.of(.4 * Math.cos(this.t/5), 0, .4 * Math.sin(this.t/5))));
 			this.shapes.ball.draw(
 				graphics_state,
 				mat.times(Mat4.scale(Vec.of(.3, .3, .3))), 
@@ -720,7 +731,7 @@ class Space_Invaders extends Scene_Component {
 			var mat = new Mat4(this.lasers[i].x, this.lasers[i].y, 0);
 			this.shapes.missile.draw(
 				graphics_state,
-				mat.times(Mat4.rotation(3 * Math.PI/2,Vec.of(1, 0, 0))).times(Mat4.scale(Vec.of(.5,.5,.5))), 
+				mat.times(Mat4.rotation(3 * Math.PI/2,Vec.of(1, 0, 0))).times(Mat4.scale(Vec.of(.25,.25,.5))), 
 				this.shape_materials[3] || this.plastic);
 		}
 		
