@@ -713,7 +713,7 @@ class Space_Invaders extends Scene_Component {
 			var mat = new Mat4(this.lasers[i].x, this.lasers[i].y, 0);
 			this.shapes.missile.draw(
 				graphics_state,
-				mat.times(Mat4.rotation(3 * Math.PI/2,Vec.of(1, 0, 0))).times(Mat4.scale(Vec.of(.5,.5,.5))), 
+				mat.times(Mat4.rotation(3 * Math.PI/2,Vec.of(1, 0, 0))).times(Mat4.scale(Vec.of(.25,.25,.5))), 
 				this.shape_materials[3] || this.plastic);
 		}
 		
