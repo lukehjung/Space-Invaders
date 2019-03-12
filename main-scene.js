@@ -44,6 +44,24 @@ class Space_Invaders extends Scene_Component {
 		this.lasers = [];
 		this.alien_array = [];
 		this.ship = [];
+		this.gameover = false;
+		this.paused = true;
+		
+		this.start = true;
+		this.begin = false;
+		this.animation_t = 0;
+		this.sign_Matrix = Mat4.identity().times(Mat4.scale([10, 10, 10])).times(Mat4.translation([0, 0, 100]));
+
+
+		this.materials = {
+			start_screen: context.get_instance(Fake_Bump_Map).material(Color.of(0, 0, 0, 1), {
+                ambient: .8,
+                diffusivity: .5,
+                specularity: .5,
+                texture: context.get_instance("assets/start.jpg", false)
+            })
+		}
+
 		this.lives = 3;
 		
 		this.particles = []
@@ -57,8 +75,8 @@ class Space_Invaders extends Scene_Component {
 
 
 		// First, include a secondary Scene that provides movement controls:
-		//         if(!context.globals.has_controls)
-		//             context.register_scene_component(new Movement_Controls(context, control_box.parentElement.insertCell()));
+ 		//        if(!context.globals.has_controls)
+ 		//            context.register_scene_component(new Movement_Controls(context, control_box.parentElement.insertCell()));
 
 		// Locate the camera here (inverted matrix).
 		const r = context.width / context.height;
@@ -73,6 +91,7 @@ class Space_Invaders extends Scene_Component {
 		// multiple cubes.  Don't define more than one blueprint for the
 		// same thing here.
 		const shapes = {
+			'plane' : new Square(),
 			'square': new Square(),
 			'circle': new Circle(15),
 			'pyramid': new Tetrahedron(false),
@@ -104,6 +123,7 @@ class Space_Invaders extends Scene_Component {
 		// Load some textures for the demo shapes
 		this.shape_materials = {};
 		const shape_textures = {
+			plane: "assets/start.jpg",
 			square: "assets/butterfly.png",
 			box: "assets/even-dice-cubemap.png",
 			ball: "assets/soccer_sph_s_resize.png",
@@ -127,7 +147,6 @@ class Space_Invaders extends Scene_Component {
 
 		this.t = 0;
 	}
-
 		
 	draw_aliens2(graphics_state, alien_matrix)
   	{
@@ -304,6 +323,9 @@ class Space_Invaders extends Scene_Component {
 		);
 
 		this.key_triggered_button("Start", ['y'], ()=>{
+			this.paused = false;
+			this.begin = true;
+			console.log("hello")
 			for(var i = 0; i < this.rockets.length; i++){
 				this.rockets.splice(i--, 1)
 			}
@@ -374,7 +396,6 @@ class Space_Invaders extends Scene_Component {
 	{
 		let m = Mat4.identity();
 		this.shapes.square.draw(graphics_state, m.times(Mat4.translation(Vec.of(-15.5, 0, 0))).times(Mat4.scale(Vec.of(1, 50, 1))), this.shape_materials[1] || this.plastic);
-
 		this.shapes.square.draw(graphics_state, m.times(Mat4.translation(Vec.of(15.5, 0, 0))).times(Mat4.scale(Vec.of(1, 50, 1))), this.shape_materials[1] || this.plastic);
 	}
 
@@ -510,6 +531,23 @@ class Space_Invaders extends Scene_Component {
 		}
 	}
 
+	trigger_game(graphics_state)
+	{
+		graphics_state.camera_transform = Mat4.translation(Vec.of(0, 0, -30)).times(Mat4.rotation(-Math.PI / 3, Vec.of(1, 0, 0))).times(Mat4.scale([3 / 2, 3 / 2, 3 / 2]));
+		if (this.ship.length > 0)
+		{
+			graphics_state.camera_transform = Mat4.translation(Vec.of(0, 0, -30)).times(Mat4.rotation(-Math.PI / 3, Vec.of(1, 0, 0))).times(Mat4.scale([3 / 2, 3 / 2, 3 / 2])).times(Mat4.translation(Vec.of(this.ship[0].x, 5, 0)));
+		}
+		this.start = false;
+		var new_matrix = Mat4.look_at(Vec.of(0, -28, 8), Vec.of(0, 0, 0), Vec.of(0, 10, 0));
+        new_matrix = new_matrix.map((x,i)=>Vec.from(graphics_state.camera_transform[i]).mix(x, .05));
+        graphics_state.camera_transform = new_matrix;
+        this.animation_t += 0.01;
+        if (this.animation_t >= 1) {
+            this.begin = false;
+        }
+	}
+
 	RespawnParticle(particle)
 	{
 		particle.spec -= .5;
@@ -531,6 +569,32 @@ class Space_Invaders extends Scene_Component {
 
 		if((this.t - this.shotclock) > 20){
 			this.canshoot = true;
+		}
+
+		if (this.start) {
+			graphics_state.camera_transform = Mat4.look_at(Vec.of(0, -5, 1030), Vec.of(0, 100, 0), Vec.of(0, 10, 0));
+			let sign_Matrix = this.sign_Matrix.times(Mat4.rotation(Math.PI / 36, Vec.of(1, 0, 0))).times(Mat4.scale([3 / 2, 3 / 2, 3 / 2]));
+			this.shapes.plane.draw(graphics_state, sign_Matrix, this.materials.start_screen);
+			if (this.begin) {
+				console.log("test");
+				this.trigger_game(graphics_state);
+			}
+		}
+
+		else {
+			graphics_state.camera_transform = Mat4.translation(Vec.of(0, 0, -30)).times(Mat4.rotation(-Math.PI / 3, Vec.of(1, 0, 0))).times(Mat4.scale([3 / 2, 3 / 2, 3 / 2]));
+			if (this.ship.length > 0)
+			{
+				graphics_state.camera_transform = Mat4.translation(Vec.of(0, 0, -30)).times(Mat4.rotation(-Math.PI / 3, Vec.of(1, 0, 0))).times(Mat4.scale([3 / 2, 3 / 2, 3 / 2])).times(Mat4.translation(Vec.of(-1 * this.ship[0].x, 5, 0)));
+			}
+			this.start = false;
+			var new_matrix = Mat4.look_at(Vec.of(0, -28, 8), Vec.of(0, 0, 0), Vec.of(0, 10, 0));
+			new_matrix = new_matrix.map((x,i)=>Vec.from(graphics_state.camera_transform[i]).mix(x, .05));
+			graphics_state.camera_transform = new_matrix;
+			this.animation_t += 0.01;
+			if (this.animation_t >= 1) {
+				this.begin = false;
+			}
 		}
 
 		const t = this.t;
