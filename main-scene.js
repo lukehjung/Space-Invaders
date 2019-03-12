@@ -5,6 +5,14 @@ function Rocket(x, y, velocity)
 	this.velocity = velocity;
 }
 
+function Laser(x, y, velocity,type) 
+{
+	this.x = x;
+	this.y = y;
+	this.velocity = velocity;
+	this.type = type;
+}
+
 function Alien(x, y, type)
 {
 	this.x = x;
@@ -32,6 +40,13 @@ function Particle(p_x, p_y, p_z, v_x, v_y, v_z)
 
     this.spec = .6
 	this.life = 100;
+}
+
+function Asteroid(x,y,z)
+{
+	this.x = x;
+	this.y = y;
+	this.z = z;
 }
 
 class Space_Invaders extends Scene_Component {
@@ -62,6 +77,10 @@ class Space_Invaders extends Scene_Component {
 		this.scoreElement.appendChild(this.scoreNode);
 		this.livesElement.appendChild(this.livesNode);
 
+		this.down = false;
+
+		this.asteroids = [];
+
 		this.materials = {
 			start_screen: context.get_instance(Fake_Bump_Map).material(Color.of(0, 0, 0, 1), {
                 ambient: .8,
@@ -75,6 +94,27 @@ class Space_Invaders extends Scene_Component {
                 diffusivity: .5,
                 specularity: .5,
                 texture: context.get_instance("assets/end.jpg", false)
+            }),
+
+            star: context.get_instance(Fake_Bump_Map).material(Color.of(0, 0, 0, 1), {
+                ambient: 1,
+                diffusivity: 1,
+                specularity: .8,
+                texture: context.get_instance("assets/star.jpg", false)
+            }),
+
+            metal: context.get_instance(Fake_Bump_Map).material(Color.of(0, 0, 0, 1), {
+                ambient: .8,
+                diffusivity: .5,
+                specularity: .2,
+                texture: context.get_instance("assets/metal.jpg", false)
+            }),
+
+            asteroids: context.get_instance(Fake_Bump_Map).material(Color.of(0, 0, 0, 1), {
+                ambient: 1,
+                diffusivity: .5,
+                specularity: .3,
+                texture: context.get_instance("assets/asteroids.jpg", false)
             })
 		}
 		
@@ -115,7 +155,8 @@ class Space_Invaders extends Scene_Component {
 			'cone': new Cone(20),
 			'ball': new Subdivision_Sphere(4),
 			'prism': new TriangularPrism(),
-			'missile': new Missile(4)
+			'missile': new Missile(4),
+			'star': new Star()
 		}
 		this.submit_shapes(context, shapes);
 		this.shape_count = Object.keys(shapes).length;
@@ -277,12 +318,12 @@ class Space_Invaders extends Scene_Component {
       ship_matrix.times(Mat4.translation(Vec.of(0, 0, 0))) // y translate value found here
       .times(Mat4.scale(Vec.of(.8, .9, .8)))
       .times(Mat4.rotation(Math.PI/2, Vec.of(1, 0, 0))), 
-      this.shape_materials[1] || this.plastic);
+      this.materials.metal);
     this.shapes.cone.draw(graphics_state,
       ship_matrix.times(Mat4.translation(Vec.of(0, .9, 0)))
       .times(Mat4.rotation(Math.PI*(3/2), Vec.of(1, 0, 0)))
       .times(Mat4.scale(Vec.of(.8, 1, 1))),
-      this.shape_materials[1] || this.plastic);
+      this.materials.metal);
     this.shapes.cylinder.draw(graphics_state, 
       ship_matrix.times(Mat4.translation(Vec.of(0, .05, 0.4)))
       .times(Mat4.scale(Vec.of(.6, .7, .6)))
@@ -337,7 +378,7 @@ class Space_Invaders extends Scene_Component {
     	ship_matrix.times(Mat4.translation(Vec.of(0, -.9, 0)))
     	.times(Mat4.rotation(Math.PI/2, Vec.of(1, 0, 0)))
     	.times(Mat4.scale(Vec.of(.8, .8, .8))),
-    	this.shape_materials[1] || this.plastic);
+    	this.materials.metal);
   	}
 
 
@@ -346,23 +387,23 @@ class Space_Invaders extends Scene_Component {
 		this.shapes.ball.draw(graphics_state,
 			m.times(Mat4.translation(Vec.of(0, 0, 0)))
 			.times(Mat4.scale(Vec.of(.6, .6, .6))),
-			this.shape_materials[1] || this.plastic);
+			this.materials.asteroids);
 		this.shapes.ball.draw(graphics_state,
 			m.times(Mat4.translation(Vec.of(.3, 0, .4)))
 			.times(Mat4.scale(Vec.of(.3, .3, .3))),
-			this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+			this.materials.asteroids);
 		this.shapes.ball.draw(graphics_state,
 			m.times(Mat4.translation(Vec.of(-.45, -.45, 0)))
 			.times(Mat4.scale(Vec.of(.2, .2, .2))),
-			this.shape_materials[1] || this.plastic);
+			this.materials.asteroids);
 		this.shapes.ball.draw(graphics_state,
 			m.times(Mat4.translation(Vec.of(-.3, .2, .4)))
 			.times(Mat4.scale(Vec.of(.4, .4, .4))),
-			this.shape_materials[1] || this.plastic);
+			this.materials.asteroids);
 		this.shapes.ball.draw(graphics_state,
 			m.times(Mat4.translation(Vec.of(.3, .2, -.4)))
 			.times(Mat4.scale(Vec.of(.3, .37, .2))),
-			this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+			this.materials.asteroids);
 	}
 
 	// Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
@@ -411,7 +452,6 @@ class Space_Invaders extends Scene_Component {
 		this.key_triggered_button("Start", ['y'], ()=>{
 			this.paused = false;
 			this.begin = true;
-			console.log("hello")
 			for(var i = 0; i < this.rockets.length; i++){
 				this.rockets.splice(i--, 1)
 			}
@@ -440,6 +480,12 @@ class Space_Invaders extends Scene_Component {
 				alien_x = -12.5;
 				alien_y += 3;
 			}
+
+			for(var i = 0; i < 50; i ++)
+			{
+				this.asteroids.push(new Asteroid(Math.random(), Math.random(), Math.random()));
+			}
+
 
 			this.lives = 3;
 			this.ship.push(new Ship(0, -10));
@@ -479,40 +525,30 @@ class Space_Invaders extends Scene_Component {
 		}
 	}
 
-	create_boundaries(graphics_state) 
-	{
-		let m = Mat4.identity();
-		this.shapes.square.draw(graphics_state, m.times(Mat4.translation(Vec.of(-15.5, 0, 0))).times(Mat4.scale(Vec.of(1, 50, 1))), this.shape_materials[1] || this.plastic);
-		this.shapes.square.draw(graphics_state, m.times(Mat4.translation(Vec.of(15.5, 0, 0))).times(Mat4.scale(Vec.of(1, 50, 1))), this.shape_materials[1] || this.plastic);
-	}
-
 	create_aliens(graphics_state, alien_array) 
 	{
 		if(!this.paused)
 		{
-			var down = false;
 			for(var i = 0; i < this.alien_array.length; i ++)
 			{
 				var alien = this.alien_array[i];
 				if(alien.x >= 14)
 				{
-					alien.x -= .1;
-					down = true;
+					alien.x -= .3;
+					this.down = true;
 				}
 				if(alien.x <= -14)
 				{
-					alien.x += .1;
-					down = true;
+					alien.x += .3;
+					this.down = true;
 				}
 
-
-
-				if(down)
+				if(this.down)
 				{
 					for(var i = 0; i < this.alien_array.length; i ++)
 					{
 						var a = this.alien_array[i];
-						a.y -= 1;
+						a.y -= .5;
 						
 						if(a.moveright == true)
 						{
@@ -523,7 +559,7 @@ class Space_Invaders extends Scene_Component {
 							a.moveright = true;
 						}
 					}
-					down = false;
+					this.down = false;
 				}
 				
 				else if(alien.moveright)
@@ -541,7 +577,7 @@ class Space_Invaders extends Scene_Component {
 				var shootlaser = Math.floor(Math.random() * 2500) + 1;
 				if(shootlaser == 1)
 				{
-					this.lasers.push(new Rocket(alien.x, alien.y, .1));
+					this.lasers.push(new Laser(alien.x, alien.y, .1, alien.type));
 				}
 			}
 		}
@@ -668,6 +704,8 @@ class Space_Invaders extends Scene_Component {
 
 	display(graphics_state) 
 	{
+		// test start
+
 		// Use the lights stored in this.lights.
 		graphics_state.lights = this.lights;
 
@@ -675,7 +713,7 @@ class Space_Invaders extends Scene_Component {
 		if (!this.paused)
 			this.t += Math.floor(graphics_state.animation_delta_time / 10);
 
-		if((this.t - this.shotclock) > 20){
+		if((this.t - this.shotclock) > 50){
 			this.canshoot = true;
 		}
 
@@ -727,16 +765,22 @@ class Space_Invaders extends Scene_Component {
 		
 		let alien_array = this.alien_array;
 			
-		// Draw some demo textured shapes
-		let m = Mat4.identity().times(Mat4.translation(Vec.of(-16,-15,0)));
-// 		this.create_boundaries(graphics_state);
-		for( var i = 0; i < 80; i += 3)
-		{
-			this.create_asteroids(graphics_state, m);
-			let b = m.times(Mat4.translation(Vec.of(32,0,0)));
-			this.create_asteroids(graphics_state, b);
-			m = m.times(Mat4.translation(Vec.of(0,2,0)));
 
+		// draw asteroids border
+
+		let m = Mat4.identity().times(Mat4.translation(Vec.of(-16,-15,0)));
+		if(this.asteroids.length > 0)
+		{
+			for(var i = 0; i < 50; i++)
+			{
+				var mat = new Mat4(this.asteroids[i].x, this.asteroids[i].y, this.asteroids[i].z);
+
+				this.create_asteroids(graphics_state, m.times(Mat4.translation(Vec.of(this.asteroids[i].x, this.asteroids[i].y, this.asteroids[i].z))));
+				let b = m.times(Mat4.translation(Vec.of(32,0,0)));
+				this.create_asteroids(graphics_state, b.times(Mat4.translation(Vec.of(this.asteroids[i].x, this.asteroids[i].y, this.asteroids[i].z))));
+				m = m.times(Mat4.translation(Vec.of(0,3,0)));
+
+			}
 		}
 		this.create_aliens(graphics_state, alien_array);
 
@@ -750,17 +794,25 @@ class Space_Invaders extends Scene_Component {
 				.times(Mat4.rotation(Math.PI/2, Vec.of(1, 0, 0)))
 				.times(Mat4.rotation(Math.PI, Vec.of(0, 1, 0)))
 				.times(Mat4.scale(Vec.of(.3, .3, .7))), 
-				this.shape_materials[3] || this.plastic);
+				this.materials.metal);
 		}
 
 		// draw lasers
 		for(var i = 0; i < this.lasers.length; i ++)
 		{
 			var mat = new Mat4(this.lasers[i].x, this.lasers[i].y, 0);
-			this.shapes.missile.draw(
-				graphics_state,
-				mat.times(Mat4.rotation(3 * Math.PI/2,Vec.of(1, 0, 0))).times(Mat4.scale(Vec.of(.25,.25,.5))), 
-				this.shape_materials[3] || this.plastic);
+			if(this.lasers[i].type == 1)
+			{
+				this.shapes.star.draw(
+					graphics_state,
+					mat.times(Mat4.rotation(3 * Math.PI/2,Vec.of(1, 0, 0))).times(Mat4.scale(Vec.of(.25,.25,.5))), 
+					this.materials.star);
+			}
+			else
+				this.shapes.missile.draw(
+					graphics_state,
+					mat.times(Mat4.rotation(3 * Math.PI/2,Vec.of(1, 0, 0))).times(Mat4.scale(Vec.of(.25,.25,.5))), 
+					this.materials.star);
 		}
 		
 		// draw aliens
@@ -814,13 +866,12 @@ class Space_Invaders extends Scene_Component {
 				if(par.life > 0)
 				{
 					var mat = new Mat4(par.pos_x, par.pos_y, par.pos_z)
-					this.shapes.ball.draw(
+					this.shapes.missile.draw(
 						graphics_state,
 						mat.times(Mat4.scale(Vec.of(.3, .3, .3))), 
-						this.clay.override({
+						this.materials.star.override({
 							specularity: par.spec, 
-							diffusivity: par.spec,
-							color: Color.of( 255, 2, 30, 1)
+							diffusivity: par.spec
 						}));
 				}
 				if(par.spec < 0)

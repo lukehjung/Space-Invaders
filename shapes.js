@@ -1,3 +1,89 @@
+window.Star = window.classes.Star = class Star extends Shape {
+    constructor() {
+        super("positions", "normals", "texture_coords");
+
+        this.positions.push(...Vec.cast(
+            [-0.3,0.3,0.3],[0,1,0],[0.3,0.3,0.3],
+            [0.3,0.3,0.3],[0,1,0],[0.3,0.3,-0.3],
+            [0.3,0.3,-0.3],[0,1,0],[-0.3,0.3,-0.3],
+            [-0.3,0.3,-0.3],[0,1,0],[-0.3,0.3,0.3],
+
+            [0.3,0.3,0.3],[1,0,0],[0.3,-0.3,0.3],
+            [0.3,-0.3,0.3],[1,0,0],[0.3,-0.3,-0.3],
+            [0.3,-0.3,-0.3],[1,0,0],[0.3,0.3,-0.3],
+            [0.3,0.3,-0.3],[1,0,0],[0.3,0.3,0.3],
+
+            [-0.3,-0.3,0.3],[0,-1,0],[0.3,-0.3,0.3],
+            [0.3,-0.3,0.3],[0,-1,0],[0.3,-0.3,-0.3],
+            [0.3,-0.3,-0.3],[0,-1,0],[-0.3,-0.3,-0.3],
+            [-0.3,-0.3,-0.3],[0,-1,0],[-0.3,-0.3,0.3],
+
+            [-0.3,0.3,0.3],[-1,0,0],[-0.3,-0.3,0.3],
+            [-0.3,-0.3,0.3],[-1,0,0],[-0.3,-0.3,-0.3],
+            [-0.3,-0.3,-0.3],[-1,0,0],[-0.3,0.3,-0.3],
+            [-0.3,0.3,-0.3],[-1,0,0],[-0.3,0.3,0.3],
+
+            [-0.3,0.3,0.3],[0,0,1],[0.3,0.3,0.3],
+            [0.3,0.3,0.3],[0,0,1],[0.3,-0.3,0.3],
+            [0.3,-0.3,0.3],[0,0,1],[-0.3,-0.3,0.3],
+            [-0.3,-0.3,0.3],[0,0,1],[-0.3,0.3,0.3],
+
+            [-0.3,0.3,-0.3],[0,0,-1],[0.3,0.3,-0.3],
+            [0.3,0.3,-0.3],[0,0,-1],[0.3,-0.3,-0.3],
+            [0.3,-0.3,-0.3],[0,0,-1],[-0.3,-0.3,-0.3],
+            [-0.3,-0.3,-0.3],[0,0,-1],[-0.3,0.3,-0.3]));
+
+
+        for(var i = 0; i < 24; i++){
+            let a = this.positions[i*3],
+                b = this.positions[i*3+1],
+                c = this.positions[i*3+2];
+
+            //let normal = b.minus(a).cross(c.minus(a)).normalized();
+            let normal = Vec.of(1,1,1)
+
+            this.normals.push(normal);
+            this.normals.push(normal);
+            this.normals.push(normal);
+
+            let x = Math.random()/2;
+            let y = Math.random()/2;
+            
+            this.texture_coords.push(Vec.of(x,y));
+            this.texture_coords.push(Vec.of(x,y+0.1));
+            this.texture_coords.push(Vec.of(x+0.1,y));
+
+        }
+
+
+        this.indices.push(
+            0,1,2,
+            3,4,5,
+            6,7,8,
+            9,10,11,
+            12,13,14,
+            15,16,17,
+            18,19,20,
+            21,22,23,
+            24,25,26,
+            27,28,29,
+            30,31,32,
+            33,34,35,
+            36,37,38,
+            39,40,41,
+            42,43,44,
+            45,46,47,
+            48,49,50,
+            51,52,53,
+            54,55,56,
+            57,58,59,
+            60,61,62,
+            63,64,65,
+            66,67,68,
+            69,70,71);
+    }
+}
+
 window.TriangularPrism = window.classes.TriangularPrism = class TriangularPrism extends Shape {
     constructor() { 
         // Name the values we'll define per each vertex.
@@ -81,7 +167,6 @@ window.Missile = window.classes.Missile = class Missile extends Shape {
         let ab_vert = this.positions[a].mix(this.positions[b], .5).minus(Vec.of(0,0,.2)).normalized(),
             ac_vert = this.positions[a].mix(this.positions[c], .5).minus(Vec.of(0,0,.2)).normalized(),
             bc_vert = this.positions[b].mix(this.positions[c], .5).minus(Vec.of(0,0,.2)).normalized();
-        console.log(ab_vert)
 
         // indices of new points
         let ab = this.positions.push(ab_vert) - 1,
