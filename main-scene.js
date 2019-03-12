@@ -195,7 +195,7 @@ class Space_Invaders extends Scene_Component {
 			.times(Mat4.scale(Vec.of(.13, .03, .03))),
 			this.shape_materials[1] || this.plastic.override({color: this.yellow}));
 
-		const deg = 1.5 * Math.sin(this.t);
+		const deg = 1.5 * Math.sin(this.t/5);
 		alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(0, .4, 0)))
             .times(Mat4.scale(Vec.of(.06, .06, .06)))
             .times(Mat4.rotation(Math.PI, Vec.of(1, .9, 0.7))),
@@ -252,11 +252,11 @@ class Space_Invaders extends Scene_Component {
 		  //.times(Mat4.rotation(Math.PI/4, Vec.of(1, 0, 0))),
 		  this.shape_materials[1] || this.plastic);
 		this.shapes.ball.draw(graphics_state, 
-		  alien_matrix.times(Mat4.translation(Vec.of(.1, -0.15, 0.4)))
+		  alien_matrix.times(Mat4.translation(Vec.of(.1, -0.15, 0.2)))
 		  .times(Mat4.scale(Vec.of(.08, .08, .08))),
 		  this.shape_materials[1] || this.plastic);
 		this.shapes.ball.draw(graphics_state, 
-		  alien_matrix.times(Mat4.translation(Vec.of(-.1, -0.15, 0.4)))
+		  alien_matrix.times(Mat4.translation(Vec.of(-.1, -0.15, 0.2)))
 		  .times(Mat4.scale(Vec.of(.08, .08, .08))),
       this.shape_materials[1] || this.plastic);
   }
