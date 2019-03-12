@@ -5,10 +5,11 @@ function Rocket(x, y, velocity)
 	this.velocity = velocity;
 }
 
-function Alien(x, y)
+function Alien(x, y, type)
 {
 	this.x = x;
 	this.y = y;
+	this.type = type;
 }
 
 function Ship(x, y)
@@ -17,7 +18,7 @@ function Ship(x, y)
 	this.y = y;
 }
 
-class Assignment_Two_Skeleton extends Scene_Component {
+class Space_Invaders extends Scene_Component {
 	// The scene begins by requesting the camera, shapes, and materials it will need
 	constructor(context, control_box) {
 
@@ -291,7 +292,7 @@ class Assignment_Two_Skeleton extends Scene_Component {
 			{
 				for(var j = 0; j < 8; j ++)
 				{
-					this.alien_array.push(new Alien(alien_x, alien_y));
+					this.alien_array.push(new Alien(alien_x, alien_y, j % 2));
 					alien_x += 3;
 				}
 				alien_x = -10.5;
@@ -411,7 +412,7 @@ class Assignment_Two_Skeleton extends Scene_Component {
 		for(var i = 0; i < this.alien_array.length; i ++)
 		{
 			var mat = new Mat4(this.alien_array[i].x, this.alien_array[i].y)
-			if( i % 2 ==0)
+			if( alien_array[i].type == 0)
 			{
 				this.draw_aliens1(graphics_state,mat);
 			}
@@ -428,7 +429,6 @@ class Assignment_Two_Skeleton extends Scene_Component {
 			this.draw_ship(graphics_state, shipmat);
 		}
 		if(this.gameover){
-			//this.paused;
 			this.ship.splice(0, 1);
 			 for(var i = 0; i < this.alien_array.length; i++){
 			 	this.alien_array.splice(i--, 1)
@@ -440,4 +440,4 @@ class Assignment_Two_Skeleton extends Scene_Component {
 	}
 }
 
-window.Assignment_Two_Skeleton = window.classes.Assignment_Two_Skeleton = Assignment_Two_Skeleton;
+window.Space_Invaders = window.classes.Space_Invaders = Space_Invaders;
