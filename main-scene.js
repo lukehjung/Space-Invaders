@@ -700,7 +700,7 @@ class Space_Invaders extends Scene_Component {
 		// draw rockets
 		for(var i = 0; i < this.rockets.length; i ++)
 		{
-			var mat = new Mat4(this.rockets[i].x, this.rockets[i].y, 0).times(Mat4.translation(Vec.of(.4 * Math.cos(this.t), 0, .4 * Math.sin(this.t))));
+			var mat = new Mat4(this.rockets[i].x, this.rockets[i].y, 0).times(Mat4.translation(Vec.of(.4 * Math.cos(this.t/5), 0, .4 * Math.sin(this.t/5))));
 			this.shapes.ball.draw(
 				graphics_state,
 				mat.times(Mat4.scale(Vec.of(.3, .3, .3))), 
