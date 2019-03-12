@@ -52,6 +52,14 @@ class Space_Invaders extends Scene_Component {
 		this.animation_t = 0;
 		this.sign_Matrix = Mat4.identity().times(Mat4.scale([10, 10, 10])).times(Mat4.translation([0, 0, 100]));
 
+		this.score = 0;
+		this.lives = 3;
+		this.scoreElement = document.getElementById("score");
+		this.livesElement = document.getElementById("lives");
+		this.scoreNode = document.createTextNode("");
+		this.livesNode = document.createTextNode("");
+		this.scoreElement.appendChild(this.scoreNode);
+		this.livesElement.appendChild(this.livesNode);
 
 		this.materials = {
 			start_screen: context.get_instance(Fake_Bump_Map).material(Color.of(0, 0, 0, 1), {
@@ -61,8 +69,6 @@ class Space_Invaders extends Scene_Component {
                 texture: context.get_instance("assets/start.jpg", false)
             })
 		}
-
-		this.lives = 3;
 		
 		this.particles = []
 		this.hit_once;
@@ -504,6 +510,8 @@ class Space_Invaders extends Scene_Component {
 
 					this.particles.push(new Particle(alien.x, alien.y, 0, randvec_x, randvec_y, randvec_z));
 				}
+				
+				this.score += 100;
 
             	this.alien_array.splice(i--, 1);
 
@@ -595,6 +603,9 @@ class Space_Invaders extends Scene_Component {
 				this.begin = false;
 			}
 		}
+
+		this.scoreNode.nodeValue = this.score.toFixed(0);  // no decimal place
+    	this.livesNode.nodeValue = this.lives.toFixed(0);
 
 		const t = this.t;
 			
