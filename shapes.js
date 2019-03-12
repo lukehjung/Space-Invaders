@@ -64,7 +64,6 @@ window.Circle = window.classes.Circle = class Circle extends Shape {
     }
 }
 
-
 window.Cube = window.classes.Cube = class Cube extends Shape {
     constructor() {
         super("positions", "normals", "texture_coords");
