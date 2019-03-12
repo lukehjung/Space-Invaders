@@ -49,11 +49,12 @@ class Space_Invaders extends Scene_Component {
 		
 		this.start = true;
 		this.begin = false;
+		this.end = false;
 		this.animation_t = 0;
 		this.sign_Matrix = Mat4.identity().times(Mat4.scale([10, 10, 10])).times(Mat4.translation([0, 0, 100]));
 
 		this.score = 0;
-		this.lives = 3;
+		this.lives = 1;
 		this.scoreElement = document.getElementById("score");
 		this.livesElement = document.getElementById("lives");
 		this.scoreNode = document.createTextNode("");
@@ -67,6 +68,13 @@ class Space_Invaders extends Scene_Component {
                 diffusivity: .5,
                 specularity: .5,
                 texture: context.get_instance("assets/start.jpg", false)
+            }), 
+
+            end_screen: context.get_instance(Fake_Bump_Map).material(Color.of(0, 0, 0, 1), {
+                ambient: .8,
+                diffusivity: .5,
+                specularity: .5,
+                texture: context.get_instance("assets/end.jpg", false)
             })
 		}
 		
@@ -654,12 +662,11 @@ class Space_Invaders extends Scene_Component {
 			let sign_Matrix = this.sign_Matrix.times(Mat4.rotation(Math.PI / 36, Vec.of(1, 0, 0))).times(Mat4.scale([3 / 2, 3 / 2, 3 / 2]));
 			this.shapes.plane.draw(graphics_state, sign_Matrix, this.materials.start_screen);
 			if (this.begin) {
-				console.log("test");
 				this.trigger_game(graphics_state);
 			}
 		}
 
-		else {
+		else if (!this.start && !this.end) {
 			graphics_state.camera_transform = Mat4.translation(Vec.of(0, 0, -30)).times(Mat4.rotation(-Math.PI / 3, Vec.of(1, 0, 0))).times(Mat4.scale([3 / 2, 3 / 2, 3 / 2]));
 			if (this.ship.length > 0)
 			{
@@ -673,6 +680,12 @@ class Space_Invaders extends Scene_Component {
 			if (this.animation_t >= 1) {
 				this.begin = false;
 			}
+		}
+
+		else if (this.end) {
+			graphics_state.camera_transform = Mat4.look_at(Vec.of(0, -5, 1030), Vec.of(0, 100, 0), Vec.of(0, 10, 0));
+			let sign_Matrix = this.sign_Matrix.times(Mat4.rotation(Math.PI / 36, Vec.of(1, 0, 0))).times(Mat4.scale([3 / 2, 3 / 2, 3 / 2]));
+			this.shapes.plane.draw(graphics_state, sign_Matrix, this.materials.end_screen);
 		}
 
 		this.scoreNode.nodeValue = this.score.toFixed(0);  // no decimal place
@@ -796,6 +809,7 @@ class Space_Invaders extends Scene_Component {
 			for(var i = 0; i < this.lasers.length; i++){
 				this.lasers.splice(i--, 1)
 			}
+			this.end = true;
 		}
 	}
 }
