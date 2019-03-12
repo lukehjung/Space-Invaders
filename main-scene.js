@@ -81,7 +81,8 @@ class Space_Invaders extends Scene_Component {
 			'cylinder': new Cylinder(15),
 			'cone': new Cone(20),
 			'ball': new Subdivision_Sphere(4),
-			'prism': new TriangularPrism()
+			'prism': new TriangularPrism(),
+			'missile': new Missile(4)
 		}
 		this.submit_shapes(context, shapes);
 		this.shape_count = Object.keys(shapes).length;
@@ -556,9 +557,9 @@ class Space_Invaders extends Scene_Component {
 		for(var i = 0; i < this.lasers.length; i ++)
 		{
 			var mat = new Mat4(this.lasers[i].x, this.lasers[i].y);
-			this.shapes.ball.draw(
+			this.shapes.missile.draw(
 				graphics_state,
-				mat.times(Mat4.scale(Vec.of(.3, .3, .3))), 
+				mat.times(Mat4.rotation(3 * Math.PI/2,Vec.of(1, 0, 0))).times(Mat4.scale(Vec.of(.5,.5,.5))), 
 				this.shape_materials[3] || this.plastic);
 		}
 		

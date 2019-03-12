@@ -32,6 +32,133 @@ window.TriangularPrism = window.classes.TriangularPrism = class TriangularPrism 
     }
 }
 
+window.Missile = window.classes.Missile = class Missile extends Shape {
+    constructor(max_subdivisions) {
+        super("positions", "normals", "texture_coords");
+
+        // Start from the following equilateral tetrahedron:
+        this.positions.push(...Vec.cast([0, 0, -1], [0, .9428, .3333], [-.8165, -.4714, .3333], [.8165, -.4714, .3333]));
+
+        // Begin recursion.
+        this.subdivideTriangle(0, 1, 2, max_subdivisions);
+        this.subdivideTriangle(3, 2, 1, max_subdivisions);
+        this.subdivideTriangle(1, 0, 3, max_subdivisions);
+        this.subdivideTriangle(0, 2, 3, max_subdivisions);
+
+        for (let p of this.positions) {
+            this.normals.push(p.copy());
+            this.texture_coords.push(Vec.of(
+                0.5 + Math.atan2(p[2], p[0]) / (2 * Math.PI),
+                0.5 - Math.asin(p[1]) / Math.PI));
+        }
+
+        // Fix the UV seam by duplicating vertices with offset UV
+        let tex = this.texture_coords;
+        for (let i = 0; i < this.indices.length; i += 3) {
+            const a = this.indices[i], b = this.indices[i + 1], c = this.indices[i + 2];
+            if ([[a, b], [a, c], [b, c]].some(x => (Math.abs(tex[x[0]][0] - tex[x[1]][0]) > 0.5))
+                && [a, b, c].some(x => tex[x][0] < 0.5))
+            {
+                for (let q of [[a, i], [b, i + 1], [c, i + 2]]) {
+                    if (tex[q[0]][0] < 0.5) {
+                        this.indices[q[1]] = this.positions.length;
+                        this.positions.push(this.positions[q[0]].copy());
+                        this.normals.push(this.normals[q[0]].copy());
+                        tex.push(tex[q[0]].plus(Vec.of(1, 0)));
+                    }
+                }
+            }
+        }
+    }
+
+    subdivideTriangle(a, b, c, count) {
+        if (count <= 0) {
+            this.indices.push(a, b, c);
+            return;
+        }
+
+//         midpoints, unitvector from a to b
+        let ab_vert = this.positions[a].mix(this.positions[b], .5).minus(Vec.of(0,0,.2)).normalized(),
+            ac_vert = this.positions[a].mix(this.positions[c], .5).minus(Vec.of(0,0,.2)).normalized(),
+            bc_vert = this.positions[b].mix(this.positions[c], .5).minus(Vec.of(0,0,.2)).normalized();
+        console.log(ab_vert)
+
+        // indices of new points
+        let ab = this.positions.push(ab_vert) - 1,
+            ac = this.positions.push(ac_vert) - 1,
+            bc = this.positions.push(bc_vert) - 1;
+
+        this.subdivideTriangle( a, ab, ac, count - 1);
+        this.subdivideTriangle(ab,  b, bc, count - 1);
+        this.subdivideTriangle(ac, bc,  c, count - 1);
+        this.subdivideTriangle(ab, bc, ac, count - 1);
+    }
+}
+
+window.Torus = window.classes.Torus = class Torus extends Shape {
+    constructor(rows, columns) {
+        super("positions", "normals", "texture_coords");
+        const circle_points = Array(rows).fill(Vec.of(.75, 0, 0)).map((p,i,a)=>Mat4.translation([-1, 0, 0]).times(Mat4.rotation(i / (a.length - 1) * 2 * Math.PI, Vec.of(0, -1, 0))).times(p.to4(1)).to3());
+        Surface_Of_Revolution.insert_transformed_copy_into(this, [rows, columns, circle_points]);
+    }
+}
+
+window.Grid_Patch = window.classes.Grid_Patch = class Grid_Patch extends Shape {
+    constructor(width, height, next_row_function, next_column_function, texture_coord_range=[[0, width], [0, height]]) {
+        super("positions", "normals", "texture_coords");
+        let points = [];
+        for (let left = 0; left <= width; left++) {
+            points.push(new Array(height + 1));
+            points[left][0] = next_row_function(left / width, points[left - 1] && points[left - 1][0]);
+        }
+        for (let left = 0; left <= width; left++)
+            for (let k = 0; k <= height; k++) {
+                if (k > 0)
+                    points[left][k] = next_column_function(k / height, points[left][k - 1], left / width);
+                this.positions.push(points[left][k]);
+                const a1 = k / height
+                  , a2 = left / width
+                  , x_range = texture_coord_range[0]
+                  , y_range = texture_coord_range[1];
+                this.texture_coords.push(Vec.of((a1) * x_range[1] + (1 - a1) * x_range[0], (a2) * y_range[1] + (1 - a2) * y_range[0]));
+            }
+        for (let left = 0; left <= width; left++)
+            for (let k = 0; k <= height; k++) {
+                let nowPos = points[left][k]
+                  , nextTo = new Array(4)
+                  , normal = Vec.of(0, 0, 0);
+                for (let[y,dir] of [[-1, 0], [0, 1], [1, 0], [0, -1]].entries())
+                    nextTo[y] = points[left + dir[1]] && points[left + dir[1]][k + dir[0]];
+                for (let y = 0; y < 4; y++)
+                    if (nextTo[y] && nextTo[(y + 1) % 4])
+                        normal = normal.plus(nextTo[y].minus(nowPos).cross(nextTo[(y + 1) % 4].minus(nowPos)));
+                normal.normalize();
+                if (normal.every(x=>x == x) && normal.norm() > .01)
+                    this.normals.push(Vec.from(normal));
+                else
+                    this.normals.push(Vec.of(0, 0, 1));
+            }
+        for (var x = 0; x < width; x++)
+            for (var y = 0; y < 2 * height; y++)
+                for (var z = 0; z < 3; z++)
+                    this.indices.push(x * (height + 1) + height * ((y + (z % 2)) % 2) + (~~((z % 3) / 2) ? (~~(y / 2) + 2 * (y % 2)) : (~~(y / 2) + 1)));
+    }
+    static sample_array(array, ratio) {
+        const frac = ratio * (array.length - 1)
+          , alpha = frac - Math.floor(frac);
+        return array[Math.floor(frac)].mix(array[Math.ceil(frac)], alpha);
+    }
+}
+
+window.Surface_Of_Revolution = window.classes.Surface_Of_Revolution = class Surface_Of_Revolution extends Grid_Patch {
+    constructor(rows, columns, points, texture_coord_range, total_curvature_angle=2 * Math.PI) {
+        const row_operation = i=>Grid_Patch.sample_array(points, i)
+          , column_operation = (j,p)=>Mat4.rotation(total_curvature_angle / columns, Vec.of(0, 0, 1)).times(p.to4(1)).to3();
+        super(rows, columns, row_operation, column_operation, texture_coord_range);
+    }
+}
+
+
 window.Square = window.classes.Square = class Square extends Shape {
     constructor() {
         super("positions", "normals", "texture_coords");
@@ -174,6 +301,8 @@ window.Cylinder = window.classes.Cylinder = class Cylinder extends Shape {
         }
     }
 }
+
+
 
 window.Cone = window.classes.Cone = class Cone extends Shape {
     constructor(sections) {
