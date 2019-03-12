@@ -144,6 +144,8 @@ class Space_Invaders extends Scene_Component {
 				texture: context.get_instance(shape_textures[t])
 			});
 
+
+
 		this.lights = [new Light(Vec.of(10, 10, 20, 1),Color.of(1, .4, 1, 1),100000)];
 
 		this.yellow = Color.of(1, 1, 0, 1);
@@ -433,7 +435,8 @@ class Space_Invaders extends Scene_Component {
 
 			this.lives = 3;
 			this.ship.push(new Ship(0, -10));
-			this.t = 0
+			this.t = 0;
+			this.score = 0;
 		}
 		);
 	}
@@ -591,7 +594,7 @@ class Space_Invaders extends Scene_Component {
 			}
 			
 			if(hit) {
-            	for (let j = 0; j < 5; j++) 
+            	for (let j = 0; j < 25; j++) 
 				{
 					let randvec_x = Math.random() - 0.5;
 					let randvec_y = Math.random() - 0.5;
@@ -719,9 +722,12 @@ class Space_Invaders extends Scene_Component {
 		for(var i = 0; i < this.rockets.length; i ++)
 		{
 			var mat = new Mat4(this.rockets[i].x, this.rockets[i].y, 0).times(Mat4.translation(Vec.of(.4 * Math.cos(this.t/5), 0, .4 * Math.sin(this.t/5))));
-			this.shapes.ball.draw(
+			this.shapes.cone.draw(
 				graphics_state,
-				mat.times(Mat4.scale(Vec.of(.3, .3, .3))), 
+				mat.times(Mat4.rotation( Math.PI/2,Vec.of(0, 1, 0)))
+				.times(Mat4.rotation(Math.PI/2, Vec.of(1, 0, 0)))
+				.times(Mat4.rotation(Math.PI, Vec.of(0, 1, 0)))
+				.times(Mat4.scale(Vec.of(.3, .3, .7))), 
 				this.shape_materials[3] || this.plastic);
 		}
 
