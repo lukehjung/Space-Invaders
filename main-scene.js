@@ -459,7 +459,7 @@ class Space_Invaders extends Scene_Component {
 				var rocket = this.rockets[i];
 				rocket.y += 5 * rocket.velocity ;
 
-				if(rocket.y >= 13)
+				if(rocket.y >= 20)
 				{
 					this.rockets.splice(i--,1);
 				}
