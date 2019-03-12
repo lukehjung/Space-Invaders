@@ -616,7 +616,7 @@ class Space_Invaders extends Scene_Component {
 					this.shapes.ball.draw(
 						graphics_state,
 						mat.times(Mat4.scale(Vec.of(.3, .3, .3))), 
-						this.clay.override({specularity: par.spec}));
+						this.clay.override({specularity: par.spec, diffusivity: par.spec}));
 				}
 			}
 			
