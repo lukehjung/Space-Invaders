@@ -20,6 +20,20 @@ function Ship(x, y)
 	this.y = y;
 }
 
+function Particle(p_x, p_y, p_z, v_x, v_y, v_z)
+{
+    this.pos_x = p_x;
+    this.pos_y = p_y;
+    this.pos_z = p_z;
+
+    this.vel_x = v_x;
+    this.vel_y = v_y;
+    this.vel_z = v_z;
+
+    this.spec = .6
+	this.life = 100;
+}
+
 class Space_Invaders extends Scene_Component {
 	// The scene begins by requesting the camera, shapes, and materials it will need
 	constructor(context, control_box) {
@@ -31,7 +45,11 @@ class Space_Invaders extends Scene_Component {
 		this.alien_array = [];
 		this.ship = [];
 		this.lives = 3;
-
+		
+		this.particles = []
+		this.hit_once;
+		this.lastUsedParticle = 0;
+		
 		this.canshoot = true;
 		this.shotclock = 0;
 
@@ -280,7 +298,6 @@ class Space_Invaders extends Scene_Component {
 				this.rockets.push(new Rocket(this.ship[0].x, this.ship[0].y, .1));
 				this.canshoot = false;
 				this.shotclock = this.t;
-				//console.log(this.shotclock);
 			}
 		}
 		);
@@ -403,7 +420,7 @@ class Space_Invaders extends Scene_Component {
 		}
 	}
 
-	collision()
+	collision(graphics_state)
 	{
 		for(var i = 0; i < this.lasers.length; i++)
 		{
@@ -434,6 +451,7 @@ class Space_Invaders extends Scene_Component {
 
 						this.rockets.splice(j--, 1);
 						hit = true;
+						this.hit_once = true;
 						break;
 					}
 				}
@@ -444,6 +462,8 @@ class Space_Invaders extends Scene_Component {
 
 						this.rockets.splice(j--, 1);
 						hit = true;
+						this.hit_once = true;
+
 						//game.score += this.config.pointsPerInvader;
 						break;
 					}
@@ -453,10 +473,19 @@ class Space_Invaders extends Scene_Component {
 			if(alien.y < -10){
 				this.lives = 0;
 			}
-
+			
 			if(hit) {
+            	for (let j = 0; j < 100; j++) 
+				{
+					let randvec_x = Math.random() - 0.5;
+					let randvec_y = Math.random() - 0.5;
+					let randvec_z = Math.random() - 0.5;
+
+					this.particles.push(new Particle(alien.x, alien.y, 0, randvec_x, randvec_y, randvec_z));
+				}
+
             	this.alien_array.splice(i--, 1);
-            	//game.sounds.playSound('bang');
+
 			}
 
 			if(this.ship.length > 0)
@@ -479,6 +508,16 @@ class Space_Invaders extends Scene_Component {
 			}
 		}
 	}
+
+	RespawnParticle(particle)
+	{
+		particle.spec -= .5;
+		particle.life = 100;
+// 		particle.vel_x;
+// 		particle.vel_y *= 0.1;
+// 		particle.vel_z *= 0.1;
+
+	}  
 
 	display(graphics_state) 
 	{
@@ -537,7 +576,7 @@ class Space_Invaders extends Scene_Component {
 		}
 
 		// check for collisions
-		this.collision();
+		this.collision(graphics_state);
 
 		if(this.ship.length > 0)
 		{
@@ -545,6 +584,43 @@ class Space_Invaders extends Scene_Component {
 			this.draw_ship(graphics_state, shipmat);
 		}
 
+		//explosion
+		if(this.hit_once)
+		{
+			for(var i = 0; i < this.particles.length; i ++)
+			{ 
+				var p = this.particles[i];
+
+				if(p.life < 0)
+				{
+					this.RespawnParticle(p);
+				}
+
+				p.life-= 20;
+				if(p.life > 0)
+				{
+					// particle is alive, thus update
+					p.pos_x += p.vel_x * 1.5;
+					p.pos_y += p.vel_y * 1.5;
+					p.pos_z += p.vel_z * 1.5;
+				}
+
+			}
+
+			for(var k = 0; k < this.particles.length; k++)
+			{
+				var par = this.particles[k];          					
+				if(par.life > 0)
+				{
+					var mat = new Mat4(par.pos_x, par.pos_y, par.pos_z)
+					this.shapes.ball.draw(
+						graphics_state,
+						mat.times(Mat4.scale(Vec.of(.3, .3, .3))), 
+						this.clay.override({specularity: par.spec}));
+				}
+			}
+			
+		}
 		// gameover, remove everything from screen
 		if(this.lives < 1){
 			this.ship.splice(0, 1);
