@@ -150,30 +150,70 @@ class Space_Invaders extends Scene_Component {
 		
 	draw_aliens2(graphics_state, alien_matrix)
   	{
-		this.shapes.ball.draw(graphics_state, alien_matrix.times(Mat4.scale(Vec.of(.5, .5, .5))), this.shape_materials[1] || this.plastic);
+		this.shapes.ball.draw(graphics_state, alien_matrix.times(Mat4.scale(Vec.of(.4, .4, .4))),
+		this.shape_materials[1] || this.plastic);
 		this.shapes.prism.draw(graphics_state, 
 		  alien_matrix.times(Mat4.translation(Vec.of(0.8, 0.3, 0)))
-		  .times(Mat4.scale(Vec.of(.5, .5, .1)))
-		  .times(Mat4.rotation(Math.PI/0.9, Vec.of(0, 0, 1))),
+		  .times(Mat4.rotation(Math.PI/0.9, Vec.of(0, 0, 1)))
+		  .times(Mat4.rotation(Math.PI*(3/2), Vec.of(1, 0, 0)))
+		  .times(Mat4.scale(Vec.of(.5, .5, .1))),
 		  this.shape_materials[1] || this.plastic.override({color: this.yellow}));
-		this.shapes.prism.draw(graphics_state,
-		  alien_matrix.times(Mat4.translation(Vec.of(-.9, 0.3, 0)))
-		  .times(Mat4.scale(Vec.of(.5, .5, .1)))
-		  .times(Mat4.rotation(Math.PI/0.71, Vec.of(0, 0, 1))),
-		  this.shape_materials[1] || this.plastic.override({color: this.yellow}));
-		this.shapes.ball.draw(graphics_state,
-		  alien_matrix.times(Mat4.translation(Vec.of(-.15, 0.07, 0.3)))
-		  .times(Mat4.scale(Vec.of(.2, .2, .2))),
-		  this.shape_materials[1] || this.plastic.override({color: this.yellow}));
-		this.shapes.ball.draw(graphics_state,
-		  alien_matrix.times(Mat4.translation(Vec.of(.2, 0.07, 0.3)))
-		  .times(Mat4.scale(Vec.of(.2, .2, .2))),
+		this.shapes.prism.draw(graphics_state, 
+		  alien_matrix.times(Mat4.translation(Vec.of(-0.8, 0.3, 0)))
+		  .times(Mat4.rotation(Math.PI/0.9, Vec.of(0, 0, 1)))
+		  .times(Mat4.rotation(Math.PI*(3/2), Vec.of(1, 0, 0)))
+		  .times(Mat4.rotation(Math.PI, Vec.of(0, 1, 0)))
+		  .times(Mat4.rotation(Math.PI/4, Vec.of(0, 1, 0)))
+		  .times(Mat4.scale(Vec.of(.5, .5, .1))),
 		  this.shape_materials[1] || this.plastic.override({color: this.yellow}));
 		this.shapes.ball.draw(graphics_state,
-		  alien_matrix.times(Mat4.translation(Vec.of(0, -0.2, 0.34)))
-		  .times(Mat4.scale(Vec.of(0.32, 0.12, 0.12))),
-		  this.shape_materials[1] || this.plastic.override({color: this.yellow}));
-  	}
+			alien_matrix.times(Mat4.translation(Vec.of(-.2, -.2, .2)))
+			.times(Mat4.scale(Vec.of(.15, .15, .15))),
+			this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+		this.shapes.ball.draw(graphics_state,
+			alien_matrix.times(Mat4.translation(Vec.of(.2, -.2, .2)))
+			.times(Mat4.scale(Vec.of(.15, .15, .15))),
+			this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+		this.shapes.box.draw(graphics_state,
+			alien_matrix.times(Mat4.translation(Vec.of(-.12, -.2, .4)))
+			.times(Mat4.rotation(Math.PI/4, Vec.of(0, 1, 1)))
+			.times(Mat4.rotation(Math.PI/2, Vec.of(0, 0, 1)))
+			.times(Mat4.scale(Vec.of(.13, .03, .03))),
+			this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+		this.shapes.box.draw(graphics_state,
+			alien_matrix.times(Mat4.translation(Vec.of(.12, -.2, .395)))
+			.times(Mat4.rotation(Math.PI/4, Vec.of(0, 1, 1)))
+			.times(Mat4.rotation(Math.PI/4, Vec.of(0, 0, 1)))
+			.times(Mat4.rotation(Math.PI*(1.95), Vec.of(0, 0, 1)))
+			.times(Mat4.rotation(Math.PI*(1.9), Vec.of(0, 1, 0)))
+			.times(Mat4.scale(Vec.of(.13, .03, .03))),
+			this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+
+		const deg = 1.5 * Math.sin(this.t);
+		alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(0, .4, 0)))
+            .times(Mat4.scale(Vec.of(.06, .06, .06)))
+            .times(Mat4.rotation(Math.PI, Vec.of(1, .9, 0.7))),
+            this.shapes.box.draw(
+            graphics_state,
+            alien_matrix,
+            this.plastic.override({color: this.yellow}));
+        for (var i = 0; i < 3; ++i) {
+            let sign = (deg >= 0) ? -1 : 1;
+            alien_matrix = alien_matrix.times(Mat4.translation(Vec.of(1, 0, 0)))
+                .times(Mat4.rotation(0.2 * deg, Vec.of(0, 1, 0)))
+                .times(Mat4.translation(Vec.of(1, 0, 0)));
+                //.times(Mat4.scale(Vec.of(.3, .3, .3)));
+		this.shapes.box.draw(
+                graphics_state,
+                alien_matrix,
+                this.plastic.override({color: this.yellow}));
+        this.shapes.ball.draw(
+        		graphics_state,
+            	alien_matrix.times(Mat4.translation(Vec.of(3, 0, 0))).times(Mat4.scale(2)),
+            	this.plastic);
+  		}
+   }
+
 
   draw_aliens1(graphics_state, alien_matrix)
   {
@@ -217,7 +257,7 @@ class Space_Invaders extends Scene_Component {
 
 	draw_ship(graphics_state, ship_matrix)
   	{
-    this.shapes.cylinder.draw(graphics_state, 
+        this.shapes.cylinder.draw(graphics_state, 
       ship_matrix.times(Mat4.translation(Vec.of(0, 0, 0))) // y translate value found here
       .times(Mat4.scale(Vec.of(.8, .9, .8)))
       .times(Mat4.rotation(Math.PI/2, Vec.of(1, 0, 0))), 
@@ -233,9 +273,9 @@ class Space_Invaders extends Scene_Component {
       .times(Mat4.rotation(Math.PI/2, Vec.of(1, 0, 0))), 
       this.shape_materials[1] || this.plastic.override({color: this.yellow}));
     this.shapes.cone.draw(graphics_state,
-      ship_matrix.times(Mat4.translation(Vec.of(0, -1.3, 0)))
+      ship_matrix.times(Mat4.translation(Vec.of(0, -1.35, 0)))
       .times(Mat4.rotation(Math.PI*(3/2), Vec.of(1, 0, 0)))
-      .times(Mat4.scale(Vec.of(.35, 1, .55))),
+      .times(Mat4.scale(Vec.of(.45, .45, .45))),
       this.shape_materials[1] || this.plastic.override({color: this.yellow}));
     this.shapes.ball.draw(graphics_state,
       ship_matrix.times(Mat4.translation(Vec.of(0, .3, 1)))
@@ -256,17 +296,17 @@ class Space_Invaders extends Scene_Component {
       .times(Mat4.scale(Vec.of(.04, .2, .04))),
       this.shape_materials[1] || this.plastic);
     this.shapes.ball.draw(graphics_state,
-      ship_matrix.times(Mat4.translation(Vec.of(0.1, .4, 1.24)))
+      ship_matrix.times(Mat4.translation(Vec.of(0.1, .25, 1.24)))
       .times(Mat4.scale(Vec.of(0.09, .09, .09))),
       this.shape_materials[1] || this.plastic.override({color: this.yellow}));
     this.shapes.ball.draw(graphics_state,
-      ship_matrix.times(Mat4.translation(Vec.of(-0.1, .4, 1.24)))
+      ship_matrix.times(Mat4.translation(Vec.of(-0.1, .25, 1.24)))
       .times(Mat4.scale(Vec.of(0.09, .09, .09))),
       this.shape_materials[1] || this.plastic.override({color: this.yellow}));
     this.shapes.box.draw(graphics_state,
-      ship_matrix.times(Mat4.translation(Vec.of(0.08, .24, 1.3)))
+      ship_matrix.times(Mat4.translation(Vec.of(0.08, .05, 1.2)))
       .times(Mat4.rotation(Math.PI/0.09, Vec.of(0, 0, 1)))
-      .times(Mat4.scale(Vec.of(.13, .035, .035))),
+      .times(Mat4.scale(Vec.of(.11, .027, .027))),
       this.shape_materials[1] || this.plastic.override({color: this.yellow}));
     this.shapes.prism.draw(graphics_state,
       ship_matrix.times(Mat4.translation(Vec.of(.8, -.5, 0)))
@@ -277,7 +317,37 @@ class Space_Invaders extends Scene_Component {
       .times(Mat4.rotation(Math.PI, Vec.of(0, 1, 0)))
       .times(Mat4.scale(Vec.of(.7, .9, 0.1))),
       this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+    this.shapes.circle.draw(graphics_state,
+    	ship_matrix.times(Mat4.translation(Vec.of(0, -.9, 0)))
+    	.times(Mat4.rotation(Math.PI/2, Vec.of(1, 0, 0)))
+    	.times(Mat4.scale(Vec.of(.8, .8, .8))),
+    	this.shape_materials[1] || this.plastic);
   	}
+
+
+	create_asteroids(graphics_state, m)
+	{
+		this.shapes.ball.draw(graphics_state,
+			m.times(Mat4.translation(Vec.of(0, 0, 0)))
+			.times(Mat4.scale(Vec.of(.6, .6, .6))),
+			this.shape_materials[1] || this.plastic);
+		this.shapes.ball.draw(graphics_state,
+			m.times(Mat4.translation(Vec.of(.3, 0, .4)))
+			.times(Mat4.scale(Vec.of(.3, .3, .3))),
+			this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+		this.shapes.ball.draw(graphics_state,
+			m.times(Mat4.translation(Vec.of(-.45, -.45, 0)))
+			.times(Mat4.scale(Vec.of(.2, .2, .2))),
+			this.shape_materials[1] || this.plastic);
+		this.shapes.ball.draw(graphics_state,
+			m.times(Mat4.translation(Vec.of(-.3, .2, .4)))
+			.times(Mat4.scale(Vec.of(.4, .4, .4))),
+			this.shape_materials[1] || this.plastic);
+		this.shapes.ball.draw(graphics_state,
+			m.times(Mat4.translation(Vec.of(.3, .2, -.4)))
+			.times(Mat4.scale(Vec.of(.3, .37, .2))),
+			this.shape_materials[1] || this.plastic.override({color: this.yellow}));
+	}
 
 	// Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
 	make_control_panel() {
@@ -604,13 +674,22 @@ class Space_Invaders extends Scene_Component {
 		let alien_array = this.alien_array;
 			
 		// Draw some demo textured shapes
-		this.create_boundaries(graphics_state);
+		let m = Mat4.identity().times(Mat4.translation(Vec.of(-16,-4,0)));
+// 		this.create_boundaries(graphics_state);
+		for( var i = 0; i < 50; i += 3)
+		{
+			this.create_asteroids(graphics_state, m);
+			let b = m.times(Mat4.translation(Vec.of(32,0,0)));
+			this.create_asteroids(graphics_state, b);
+			m = m.times(Mat4.translation(Vec.of(0,2,0)));
+
+		}
 		this.create_aliens(graphics_state, alien_array);
 
 		// draw rockets
 		for(var i = 0; i < this.rockets.length; i ++)
 		{
-			var mat = new Mat4(this.rockets[i].x, this.rockets[i].y);
+			var mat = new Mat4(this.rockets[i].x, this.rockets[i].y, 0);
 			this.shapes.ball.draw(
 				graphics_state,
 				mat.times(Mat4.scale(Vec.of(.3, .3, .3))), 
@@ -620,7 +699,7 @@ class Space_Invaders extends Scene_Component {
 		// draw lasers
 		for(var i = 0; i < this.lasers.length; i ++)
 		{
-			var mat = new Mat4(this.lasers[i].x, this.lasers[i].y);
+			var mat = new Mat4(this.lasers[i].x, this.lasers[i].y, 0);
 			this.shapes.missile.draw(
 				graphics_state,
 				mat.times(Mat4.rotation(3 * Math.PI/2,Vec.of(1, 0, 0))).times(Mat4.scale(Vec.of(.5,.5,.5))), 
@@ -630,7 +709,7 @@ class Space_Invaders extends Scene_Component {
 		// draw aliens
 		for(var i = 0; i < this.alien_array.length; i ++)
 		{
-			var mat = new Mat4(this.alien_array[i].x, this.alien_array[i].y)
+			var mat = new Mat4(this.alien_array[i].x, this.alien_array[i].y, 0)
 			if( alien_array[i].type == 0)
 			{
 				this.draw_aliens1(graphics_state,mat);
@@ -645,7 +724,7 @@ class Space_Invaders extends Scene_Component {
 
 		if(this.ship.length > 0)
 		{
-			var shipmat = new Mat4(this.ship[0].x, this.ship[0].y)
+			var shipmat = new Mat4(this.ship[0].x, this.ship[0].y, 0)
 			this.draw_ship(graphics_state, shipmat);
 		}
 

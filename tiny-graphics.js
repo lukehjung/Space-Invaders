@@ -179,8 +179,8 @@ class Mat extends Array {
 
 // Generate special 4x4 matrices that are useful for graphics.
 class Mat4 extends Mat {
-    constructor(x,y) {
-        return Mat.of([1, 0, 0, x], [0, 1, 0, y], [0, 0, 1, 0], [0, 0, 0, 1]);
+    constructor(x,y,z) {
+        return Mat.of([1, 0, 0, x], [0, 1, 0, y], [0, 0, 1, z], [0, 0, 0, 1]);
     }
     static identity() {
         return Mat.of([1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]);
