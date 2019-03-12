@@ -475,7 +475,7 @@ class Space_Invaders extends Scene_Component {
 			}
 			
 			if(hit) {
-            	for (let j = 0; j < 100; j++) 
+            	for (let j = 0; j < 25; j++) 
 				{
 					let randvec_x = Math.random() - 0.5;
 					let randvec_y = Math.random() - 0.5;
@@ -513,9 +513,9 @@ class Space_Invaders extends Scene_Component {
 	{
 		particle.spec -= .5;
 		particle.life = 100;
-// 		particle.vel_x;
-// 		particle.vel_y *= 0.1;
-// 		particle.vel_z *= 0.1;
+		particle.vel_x *= 2;
+		particle.vel_y *= 2;
+		particle.vel_z *= 2;
 
 	}  
 
@@ -585,7 +585,7 @@ class Space_Invaders extends Scene_Component {
 		}
 
 		//explosion
-		if(this.hit_once)
+		if(this.hit_once && !this.pause)
 		{
 			for(var i = 0; i < this.particles.length; i ++)
 			{ 
@@ -616,7 +616,15 @@ class Space_Invaders extends Scene_Component {
 					this.shapes.ball.draw(
 						graphics_state,
 						mat.times(Mat4.scale(Vec.of(.3, .3, .3))), 
-						this.clay.override({specularity: par.spec, diffusivity: par.spec}));
+						this.clay.override({
+							specularity: par.spec, 
+							diffusivity: par.spec,
+							color: Color.of( 255, 2, 30, 1)
+						}));
+				}
+				if(par.spec < 0)
+				{
+					this.particles.splice(k--, 1);
 				}
 			}
 			
