@@ -24,7 +24,6 @@ class Assignment_Two_Skeleton extends Scene_Component {
 		this.alien_array = [];
 		this.start_screen = true;
 
-
 		// First, include a secondary Scene that provides movement controls:
 		//         if(!context.globals.has_controls)
 		//             context.register_scene_component(new Movement_Controls(context, control_box.parentElement.insertCell()));
