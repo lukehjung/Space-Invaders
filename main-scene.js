@@ -46,6 +46,7 @@ class Space_Invaders extends Scene_Component {
 		this.ship = [];
 		this.gameover = false;
 		this.paused = true;
+		
 		this.start = true;
 		this.begin = false;
 		this.animation_t = 0;
@@ -60,7 +61,7 @@ class Space_Invaders extends Scene_Component {
                 texture: context.get_instance("assets/start.jpg", false)
             })
 		}
-		
+
 		this.lives = 3;
 		
 		this.particles = []
@@ -74,8 +75,8 @@ class Space_Invaders extends Scene_Component {
 
 
 		// First, include a secondary Scene that provides movement controls:
-		//         if(!context.globals.has_controls)
-		//             context.register_scene_component(new Movement_Controls(context, control_box.parentElement.insertCell()));
+ 		//        if(!context.globals.has_controls)
+ 		//            context.register_scene_component(new Movement_Controls(context, control_box.parentElement.insertCell()));
 
 		// Locate the camera here (inverted matrix).
 		const r = context.width / context.height;
@@ -322,8 +323,8 @@ class Space_Invaders extends Scene_Component {
 
 		this.key_triggered_button("Start", ['y'], ()=>{
 			this.paused = false;
-			this.start = false;
 			this.begin = true;
+			console.log("hello")
 			for(var i = 0; i < this.rockets.length; i++){
 				this.rockets.splice(i--, 1)
 			}
@@ -395,7 +396,6 @@ class Space_Invaders extends Scene_Component {
 		let m = Mat4.identity();
 		this.shapes.square.draw(graphics_state, m.times(Mat4.translation(Vec.of(-15.5, 0, 0))).times(Mat4.scale(Vec.of(1, 50, 1))), this.shape_materials[1] || this.plastic);
 		this.shapes.square.draw(graphics_state, m.times(Mat4.translation(Vec.of(15.5, 0, 0))).times(Mat4.scale(Vec.of(1, 50, 1))), this.shape_materials[1] || this.plastic);
-		console.log("boundaries");
 	}
 
 	create_aliens(graphics_state, alien_array) 
@@ -439,7 +439,6 @@ class Space_Invaders extends Scene_Component {
 				}
 			}
 		}
-		console.log("create_aliens");
 	}
 
 	collision(graphics_state)
@@ -533,13 +532,21 @@ class Space_Invaders extends Scene_Component {
 
 	trigger_game(graphics_state)
 	{
+		graphics_state.camera_transform = Mat4.translation(Vec.of(0, 0, -30)).times(Mat4.rotation(-Math.PI / 3, Vec.of(1, 0, 0))).times(Mat4.scale([3 / 2, 3 / 2, 3 / 2]));
+		if (this.ship.length > 0)
+		{
+			graphics_state.camera_transform = Mat4.translation(Vec.of(0, 0, -30)).times(Mat4.rotation(-Math.PI / 3, Vec.of(1, 0, 0))).times(Mat4.scale([3 / 2, 3 / 2, 3 / 2])).times(Mat4.translation(Vec.of(this.ship[0].x, 5, 0)));
+		}
+		this.start = false;
 		var new_matrix = Mat4.look_at(Vec.of(0, -28, 8), Vec.of(0, 0, 0), Vec.of(0, 10, 0));
         new_matrix = new_matrix.map((x,i)=>Vec.from(graphics_state.camera_transform[i]).mix(x, .05));
         graphics_state.camera_transform = new_matrix;
         this.animation_t += 0.01;
-        if (this.animation_t >= 1)
+        if (this.animation_t >= 1) {
             this.begin = false;
+        }
 	}
+
 	RespawnParticle(particle)
 	{
 		particle.spec -= .5;
@@ -568,7 +575,24 @@ class Space_Invaders extends Scene_Component {
 			let sign_Matrix = this.sign_Matrix.times(Mat4.rotation(Math.PI / 36, Vec.of(1, 0, 0))).times(Mat4.scale([3 / 2, 3 / 2, 3 / 2]));
 			this.shapes.plane.draw(graphics_state, sign_Matrix, this.materials.start_screen);
 			if (this.begin) {
+				console.log("test");
 				this.trigger_game(graphics_state);
+			}
+		}
+
+		else {
+			graphics_state.camera_transform = Mat4.translation(Vec.of(0, 0, -30)).times(Mat4.rotation(-Math.PI / 3, Vec.of(1, 0, 0))).times(Mat4.scale([3 / 2, 3 / 2, 3 / 2]));
+			if (this.ship.length > 0)
+			{
+				graphics_state.camera_transform = Mat4.translation(Vec.of(0, 0, -30)).times(Mat4.rotation(-Math.PI / 3, Vec.of(1, 0, 0))).times(Mat4.scale([3 / 2, 3 / 2, 3 / 2])).times(Mat4.translation(Vec.of(-1 * this.ship[0].x, 5, 0)));
+			}
+			this.start = false;
+			var new_matrix = Mat4.look_at(Vec.of(0, -28, 8), Vec.of(0, 0, 0), Vec.of(0, 10, 0));
+			new_matrix = new_matrix.map((x,i)=>Vec.from(graphics_state.camera_transform[i]).mix(x, .05));
+			graphics_state.camera_transform = new_matrix;
+			this.animation_t += 0.01;
+			if (this.animation_t >= 1) {
+				this.begin = false;
 			}
 		}
 
