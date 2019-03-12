@@ -54,7 +54,7 @@ class Space_Invaders extends Scene_Component {
 		this.sign_Matrix = Mat4.identity().times(Mat4.scale([10, 10, 10])).times(Mat4.translation([0, 0, 100]));
 
 		this.score = 0;
-		this.lives = 1;
+		this.lives = 3;
 		this.scoreElement = document.getElementById("score");
 		this.livesElement = document.getElementById("lives");
 		this.scoreNode = document.createTextNode("");
@@ -646,6 +646,7 @@ class Space_Invaders extends Scene_Component {
 			graphics_state.camera_transform = Mat4.translation(Vec.of(0, 0, -30)).times(Mat4.rotation(-Math.PI / 3, Vec.of(1, 0, 0))).times(Mat4.scale([3 / 2, 3 / 2, 3 / 2])).times(Mat4.translation(Vec.of(this.ship[0].x, 5, 0)));
 		}
 		this.start = false;
+		this.end = false; 
 		var new_matrix = Mat4.look_at(Vec.of(0, -28, 8), Vec.of(0, 0, 0), Vec.of(0, 10, 0));
         new_matrix = new_matrix.map((x,i)=>Vec.from(graphics_state.camera_transform[i]).mix(x, .05));
         graphics_state.camera_transform = new_matrix;
@@ -678,6 +679,10 @@ class Space_Invaders extends Scene_Component {
 			this.canshoot = true;
 		}
 
+
+		if(this.alien_array.length == 0)
+			this.end = true;
+
 		if (this.start) {
 			graphics_state.camera_transform = Mat4.look_at(Vec.of(0, -5, 1030), Vec.of(0, 100, 0), Vec.of(0, 10, 0));
 			let sign_Matrix = this.sign_Matrix.times(Mat4.rotation(Math.PI / 36, Vec.of(1, 0, 0))).times(Mat4.scale([3 / 2, 3 / 2, 3 / 2]));
@@ -686,6 +691,7 @@ class Space_Invaders extends Scene_Component {
 				this.trigger_game(graphics_state);
 			}
 		}
+
 
 		else if (!this.start && !this.end) {
 			graphics_state.camera_transform = Mat4.translation(Vec.of(0, 0, -30)).times(Mat4.rotation(-Math.PI / 3, Vec.of(1, 0, 0))).times(Mat4.scale([3 / 2, 3 / 2, 3 / 2]));
@@ -707,6 +713,9 @@ class Space_Invaders extends Scene_Component {
 			graphics_state.camera_transform = Mat4.look_at(Vec.of(0, -5, 1030), Vec.of(0, 100, 0), Vec.of(0, 10, 0));
 			let sign_Matrix = this.sign_Matrix.times(Mat4.rotation(Math.PI / 36, Vec.of(1, 0, 0))).times(Mat4.scale([3 / 2, 3 / 2, 3 / 2]));
 			this.shapes.plane.draw(graphics_state, sign_Matrix, this.materials.end_screen);
+			if (this.begin) {
+				this.trigger_game(graphics_state);
+			}
 		}
 
 		this.scoreNode.nodeValue = this.score.toFixed(0);  // no decimal place
@@ -835,7 +844,6 @@ class Space_Invaders extends Scene_Component {
 			}
 			this.end = true;
 		}
-		console.log(this.t)
 	}
 }
 
