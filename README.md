@@ -1,5 +1,4 @@
 # Space-Invaders
-<<<<<<< HEAD
 CS 174a Project
 Authors:
 Luke Jung 904982644
@@ -20,5 +19,3 @@ Luke Jung
 Lucas Fei
 Michael Jung
 Lewis Hong
-
->>>>>>> 761950f04df0e161486899691ac6f2da3b07d407
